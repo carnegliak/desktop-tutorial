@@ -3,371 +3,390 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fantasy Mogul</title>
+  <title>Castle & Expeditions System</title>
   <style>
     :root {
-      --bg: #12141d;
-      --card: #1e2230;
-      --accent: #e2b041;
-      --text: #e0e6ed;
-      --muted: #8a99ad;
-      --border: #2e3548;
-      --green: #41b883;
-      --red: #e74c3c;
-      --slot-empty: #2a3042;
-      --slot-locked: #181b24;
+      --bg: #121318;
+      --card-bg: #1c1e26;
+      --accent: #d97706;
+      --accent-hover: #b45309;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border: #2e3240;
+      --success: #10b981;
+      --danger: #ef4444;
     }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
-      margin: 0;
-      padding: 16px;
+      padding: 24px;
+      line-height: 1.5;
     }
-    h1, h2, h3 { color: var(--accent); margin-top: 0; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-    .resource-bar { display: flex; flex-wrap: wrap; gap: 16px; background: #191c28; padding: 12px; border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--border); }
-    .res-item { font-weight: bold; font-size: 1rem; }
-    button { background: var(--accent); color: #000; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 8px; margin-right: 4px; }
-    button:disabled { background: var(--muted); opacity: 0.5; cursor: not-allowed; }
-    .badge { background: var(--border); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: var(--accent); }
-    .rate { font-size: 0.85rem; color: var(--green); margin-left: 4px; }
-    .tax { font-size: 0.85rem; color: var(--red); margin-left: 4px; }
 
-    /* Visual Parcel Grid */
-    .parcel-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
+    .container { max-width: 1100px; margin: 0 auto; }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .resources-bar {
+      display: flex;
+      gap: 16px;
+      background: var(--card-bg);
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .res-item { font-weight: 600; font-size: 0.95rem; }
+    .res-val { color: var(--accent); }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    h2 { font-size: 1.25rem; margin-bottom: 16px; display: flex; justify-content: space-between; }
+    
+    .btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: var(--accent-hover); }
+    .btn:disabled { background: #334155; cursor: not-allowed; color: #64748b; }
+
+    /* Roster */
+    .unit-list { display: grid; gap: 12px; margin-top: 12px; }
+    .unit-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .unit-stats { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* Party Totals */
+    .party-stats {
+      display: flex;
+      gap: 16px;
+      margin: 16px 0;
+      padding: 12px;
+      background: #14161d;
+      border-radius: 8px;
+    }
+    .stat-badge {
+      flex: 1;
+      text-align: center;
+      padding: 6px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    /* Quests */
+    .quest-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .quest-reqs { display: flex; gap: 12px; margin: 8px 0; font-size: 0.85rem; }
+    .req { padding: 2px 8px; border-radius: 4px; background: #262936; }
+    .req.met { color: var(--success); border: 1px solid var(--success); }
+    .req.unmet { color: var(--danger); border: 1px solid var(--danger); }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #262936;
+      border-radius: 4px;
+      overflow: hidden;
       margin-top: 12px;
     }
-    .parcel {
-      aspect-ratio: 1;
-      border: 2px dashed var(--border);
-      border-radius: 6px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: bold;
-      text-align: center;
-      padding: 4px;
-    }
-    .parcel.active {
-      border-style: solid;
-      border-color: var(--accent);
-      background: rgba(226, 176, 65, 0.08);
-      color: var(--text);
-    }
-    .parcel.locked {
-      background: var(--slot-locked);
-      border-color: #1f2433;
-      color: var(--muted);
-      opacity: 0.5;
-    }
+    .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.1s linear; }
+
+    .inventory { margin-top: 24px; }
+    .inv-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+    .inv-chip { background: #262936; padding: 6px 12px; border-radius: 16px; font-size: 0.85rem; }
   </style>
 </head>
 <body>
 
-  <h1>Fantasy Mogul</h1>
-
-  <!-- Top Resource Bar -->
-  <div class="resource-bar">
-    <div class="res-item">Silver: <span id="silver">100</span> <span class="rate" id="silverRate">(+1/s)</span></div>
-    <div class="res-item">Wood: <span id="wood">0</span> / <span id="woodCap">100</span> <span class="rate" id="woodRate">(+0/s)</span></div>
-    <div class="res-item">Stone: <span id="stone">0</span> / <span id="stoneCap">100</span> <span class="rate" id="stoneRate">(+0/s)</span></div>
-    <div class="res-item">Land Parcels: <span id="plotsOwned">2</span> / <span id="maxPlots">2</span></div>
-  </div>
+<div class="container">
+  <header>
+    <div>
+      <h1>Castle Management</h1>
+      <p style="color: var(--text-muted);" id="castleLevelText">Castle Level: 5</p>
+    </div>
+    <div class="resources-bar">
+      <div class="res-item">Silver: <span class="res-val" id="silverVal">500</span></div>
+      <div class="res-item">Wood: <span class="res-val" id="woodVal">150</span></div>
+      <div class="res-item">Stone: <span class="res-val" id="stoneVal">100</span></div>
+    </div>
+  </header>
 
   <div class="grid">
-    <!-- Castle (Kingdom Heart & Storage) -->
-    <div class="card">
-      <h2>Castle <span class="badge" id="castleLvl">Lvl 1</span></h2>
-      <p>The seat of your kingdom. Upgrading increases resource storage capacity and base Crown Silver taxes.</p>
-      <button id="upgradeCastleBtn" onclick="upgradeCastle()">
-        Upgrade Castle (<span id="castleCostWood">50</span> Wood, <span id="castleCostStone">50</span> Stone)
-      </button>
-    </div>
+    <!-- LEFT: Recruitment & Party -->
+    <div>
+      <div class="card">
+        <h2>Hire Units</h2>
+        <div class="unit-list">
+          <div class="unit-card">
+            <div>
+              <strong>Knight</strong>
+              <div class="unit-stats">+15 Chivalry | +5 Strength</div>
+            </div>
+            <button class="btn" onclick="hireUnit('Knight', 100, {chivalry:15, strength:5})">Hire (100 Silver)</button>
+          </div>
+          <div class="unit-card">
+            <div>
+              <strong>Mage</strong>
+              <div class="unit-stats">+20 Magic</div>
+            </div>
+            <button class="btn" onclick="hireUnit('Mage', 120, {magic:20})">Hire (120 Silver)</button>
+          </div>
+          <div class="unit-card">
+            <div>
+              <strong>Brawler</strong>
+              <div class="unit-stats">+18 Strength | +2 Chivalry</div>
+            </div>
+            <button class="btn" onclick="hireUnit('Brawler', 80, {strength:18, chivalry:2})">Hire (80 Silver)</button>
+          </div>
+        </div>
+      </div>
 
-    <!-- Visual Land Expansion Grid -->
-    <div class="card">
-      <h2>Territory Map</h2>
-      <p id="landStatus">Locked (Requires Castle Lvl 5)</p>
-      <p>Crown Levy Tax Rate: <span class="tax" id="levyRate">0.00%</span></p>
-      <button id="buyPlotBtn" onclick="buyPlotSlot()" disabled>
-        Buy Plot Slot (<span id="plotCost">5,000</span> Silver)
-      </button>
-
-      <div class="parcel-grid" id="parcelGrid">
-        <!-- Dynmically Rendered Land Parcels -->
+      <div class="card" style="margin-top: 24px;">
+        <h2>Active Roster</h2>
+        <div class="party-stats">
+          <div class="stat-badge">Str: <strong id="totalStr">0</strong></div>
+          <div class="stat-badge">Mag: <strong id="totalMag">0</strong></div>
+          <div class="stat-badge">Chiv: <strong id="totalChiv">0</strong></div>
+        </div>
+        <div id="rosterList" style="font-size: 0.9rem; color: var(--text-muted);">
+          No units hired yet. Recruit units above to build your expedition party.
+        </div>
       </div>
     </div>
 
-    <!-- Forest (Wood Generator) -->
-    <div class="card">
-      <h2>Forest <span class="badge" id="forestLvl">Lvl 0</span></h2>
-      <p>Generates Wood over time for construction and upgrades.</p>
-      <button onclick="gatherWoodManual()">Gather Wood (+1)</button>
-      <button id="upgradeForestBtn" onclick="upgradeForest()">
-        <span id="forestAction">Build Forest</span> (<span id="forestCostSilver">30</span> Silver)
-      </button>
-    </div>
+    <!-- RIGHT: Expeditions -->
+    <div>
+      <div class="card">
+        <h2>Expedition Board</h2>
+        <div id="questList"></div>
+      </div>
 
-    <!-- Quarry (Stone Generator) -->
-    <div class="card">
-      <h2>Quarry <span class="badge" id="quarryLvl">Lvl 0</span></h2>
-      <p>Generates Stone over time for heavy structural enhancements.</p>
-      <button onclick="gatherStoneManual()">Gather Stone (+1)</button>
-      <button id="upgradeQuarryBtn" onclick="upgradeQuarry()">
-        <span id="quarryAction">Build Quarry</span> (<span id="quarryCostSilver">50</span> Silver, <span id="quarryCostWood">20</span> Wood)
-      </button>
-    </div>
-
-    <!-- Expedition Guild (Unlocked at Castle Lvl 5) -->
-    <div class="card">
-      <h2>Expedition Guild <span class="badge" id="guildLvl">Lvl 0</span></h2>
-      <p id="guildStatus">Requires Castle Lvl 5 &amp; 1 Free Land Parcel</p>
-      <button id="buildGuildBtn" onclick="buildGuild()" disabled>
-        Build Guild (1,000 Silver, 200 Wood, 200 Stone)
-      </button>
+      <div class="card inventory">
+        <h2>Unused / Future Item Storage</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Reagents and artifacts dropped from quests sit here until the Alchemy & Spell Shops are unlocked.</p>
+        <div class="inv-grid" id="storageGrid">
+          <span class="inv-chip" style="color: var(--text-muted);">Storage empty</span>
+        </div>
+      </div>
     </div>
   </div>
+</div>
 
-  <script>
-    // Initial Game State
-    let state = {
-      silver: 100,
-      wood: 0,
-      stone: 0,
-      castleLvl: 1,
-      forestLvl: 0,
-      quarryLvl: 0,
-      guildLvl: 0,
-      woodCap: 100,
-      stoneCap: 100,
-      plotsOwned: 2,       // Base plots for Forest + Quarry
-      extraPlotsBought: 0
+<script>
+  // Game State
+  const state = {
+    silver: 500,
+    wood: 150,
+    stone: 100,
+    roster: [],
+    storage: {},
+    activeQuests: {}
+  };
+
+  const quests = [
+    {
+      id: 'q1',
+      title: 'Scout the Whispering Ruins',
+      duration: 5, // seconds for testing
+      reqs: { strength: 10, magic: 15 },
+      rewards: { silver: 80, items: ['Unidentified Relic'] }
+    },
+    {
+      id: 'q2',
+      title: 'Clear Goblin Encampment',
+      duration: 8,
+      reqs: { strength: 30, chivalry: 10 },
+      rewards: { silver: 150, wood: 40, items: ['Fire Blossom Extract'] }
+    },
+    {
+      id: 'q3',
+      title: 'Escort Royal Envoy',
+      duration: 12,
+      reqs: { chivalry: 30, magic: 10 },
+      rewards: { silver: 250, stone: 50, items: ['Arcane Dust'] }
+    }
+  ];
+
+  function getPartyTotals() {
+    return state.roster.reduce((acc, u) => {
+      acc.strength += u.stats.strength || 0;
+      acc.magic += u.stats.magic || 0;
+      acc.chivalry += u.stats.chivalry || 0;
+      return acc;
+    }, { strength: 0, magic: 0, chivalry: 0 });
+  }
+
+  function hireUnit(type, cost, stats) {
+    if (state.silver < cost) return alert('Not enough Silver!');
+    state.silver -= cost;
+    state.roster.push({ type, stats });
+    updateUI();
+  }
+
+  function startQuest(questId) {
+    const q = quests.find(x => x.id === questId);
+    if (!q || state.activeQuests[questId]) return;
+
+    const totals = getPartyTotals();
+    const meetsReqs = Object.keys(q.reqs).every(stat => totals[stat] >= q.reqs[stat]);
+
+    // Calculate success chance based on stat fulfillment
+    let successChance = 100;
+    Object.keys(q.reqs).forEach(stat => {
+      if (totals[stat] < q.reqs[stat]) {
+        const ratio = totals[stat] / q.reqs[stat];
+        successChance -= (1 - ratio) * 50;
+      }
+    });
+    successChance = Math.max(10, Math.round(successChance));
+
+    state.activeQuests[questId] = {
+      startTime: Date.now(),
+      duration: q.duration * 1000,
+      chance: successChance
     };
 
-    function getCastleCost() {
-      return {
-        wood: Math.floor(50 * Math.pow(1.6, state.castleLvl - 1)),
-        stone: Math.floor(50 * Math.pow(1.6, state.castleLvl - 1))
-      };
-    }
-
-    function getForestCost() {
-      return Math.floor(30 * Math.pow(1.5, state.forestLvl));
-    }
-
-    function getQuarryCost() {
-      return {
-        silver: Math.floor(50 * Math.pow(1.5, state.quarryLvl)),
-        wood: Math.floor(20 * Math.pow(1.5, state.quarryLvl))
-      };
-    }
-
-    function getPlotCost() {
-      return Math.floor(5000 * Math.pow(2.2, state.extraPlotsBought));
-    }
-
-    function getNetSilverRate() {
-      let baseIncome = state.castleLvl;
-      let levyPercent = state.extraPlotsBought * 0.0006;
-      let netRate = baseIncome * (1 - levyPercent);
-      return Math.max(0.1, netRate).toFixed(2);
-    }
-
-    function renderParcels() {
-      const grid = document.getElementById('parcelGrid');
-      grid.innerHTML = '';
-
-      let totalSlotsToShow = Math.max(8, state.plotsOwned + 2);
-      let occupied = [];
-      if (state.forestLvl > 0) occupied.push('🌲 Forest');
-      if (state.quarryLvl > 0) occupied.push('⛏️ Quarry');
-      if (state.guildLvl > 0) occupied.push('📜 Guild');
-
-      for (let i = 0; i < totalSlotsToShow; i++) {
-        const div = document.createElement('div');
-        if (i < state.plotsOwned) {
-          div.className = 'parcel active';
-          div.innerText = occupied[i] || '🟩 Empty';
-        } else {
-          div.className = 'parcel locked';
-          div.innerText = '🔒 Locked';
-        }
-        grid.appendChild(div);
-      }
-    }
-
-    function updateUI() {
-      // Resource Counts
-      document.getElementById('silver').innerText = Math.floor(state.silver);
-      document.getElementById('wood').innerText = Math.floor(state.wood);
-      document.getElementById('stone').innerText = Math.floor(state.stone);
-
-      // Plots Tracker
-      let totalPlotsUsed = (state.forestLvl > 0 ? 1 : 0) + (state.quarryLvl > 0 ? 1 : 0) + (state.guildLvl > 0 ? 1 : 0);
-      document.getElementById('plotsOwned').innerText = totalPlotsUsed;
-      document.getElementById('maxPlots').innerText = state.plotsOwned;
-
-      // Capacities
-      state.woodCap = state.castleLvl * 100;
-      state.stoneCap = state.castleLvl * 100;
-      document.getElementById('woodCap').innerText = state.woodCap;
-      document.getElementById('stoneCap').innerText = state.stoneCap;
-
-      // Rates & Taxes
-      document.getElementById('silverRate').innerText = `(+${getNetSilverRate()}/s)`;
-      document.getElementById('woodRate').innerText = `(+${state.forestLvl}/s)`;
-      document.getElementById('stoneRate').innerText = `(+${state.quarryLvl}/s)`;
-
-      let levyPct = (state.extraPlotsBought * 0.06).toFixed(2);
-      document.getElementById('levyRate').innerText = levyPct + '%';
-
-      // Castle UI
-      document.getElementById('castleLvl').innerText = 'Lvl ' + state.castleLvl;
-      let castleCost = getCastleCost();
-      document.getElementById('castleCostWood').innerText = castleCost.wood;
-      document.getElementById('castleCostStone').innerText = castleCost.stone;
-      document.getElementById('upgradeCastleBtn').disabled = state.wood < castleCost.wood || state.stone < castleCost.stone;
-
-      // Land Expansion UI
-      if (state.castleLvl >= 5) {
-        document.getElementById('landStatus').innerText = "Expand land grid for advanced structures.";
-        let plotCost = getPlotCost();
-        document.getElementById('plotCost').innerText = plotCost.toLocaleString();
-        document.getElementById('buyPlotBtn').disabled = state.silver < plotCost;
-      } else {
-        document.getElementById('landStatus').innerText = "Locked (Requires Castle Lvl 5)";
-        document.getElementById('buyPlotBtn').disabled = true;
-      }
-
-      // Forest UI
-      document.getElementById('forestLvl').innerText = 'Lvl ' + state.forestLvl;
-      document.getElementById('forestAction').innerText = state.forestLvl === 0 ? "Build Forest" : "Upgrade Forest";
-      let forestCost = getForestCost();
-      document.getElementById('forestCostSilver').innerText = forestCost;
-      let needsPlotForForest = state.forestLvl === 0 && totalPlotsUsed >= state.plotsOwned;
-      document.getElementById('upgradeForestBtn').disabled = state.silver < forestCost || needsPlotForForest;
-
-      // Quarry UI
-      document.getElementById('quarryLvl').innerText = 'Lvl ' + state.quarryLvl;
-      document.getElementById('quarryAction').innerText = state.quarryLvl === 0 ? "Build Quarry" : "Upgrade Quarry";
-      let quarryCost = getQuarryCost();
-      document.getElementById('quarryCostSilver').innerText = quarryCost.silver;
-      document.getElementById('quarryCostWood').innerText = quarryCost.wood;
-      let needsPlotForQuarry = state.quarryLvl === 0 && totalPlotsUsed >= state.plotsOwned;
-      document.getElementById('upgradeQuarryBtn').disabled = state.silver < quarryCost.silver || state.wood < quarryCost.wood || needsPlotForQuarry;
-
-      // Expedition Guild UI
-      document.getElementById('guildLvl').innerText = 'Lvl ' + state.guildLvl;
-      if (state.castleLvl >= 5) {
-        if (state.guildLvl === 0) {
-          document.getElementById('guildStatus').innerText = "Ready to build. Requires 1 open Land Parcel.";
-          let needsPlotForGuild = totalPlotsUsed >= state.plotsOwned;
-          document.getElementById('buildGuildBtn').disabled = state.silver < 1000 || state.wood < 200 || state.stone < 200 || needsPlotForGuild;
-        } else {
-          document.getElementById('guildStatus').innerText = "Guild Active! Ready to dispatch party.";
-          document.getElementById('buildGuildBtn').disabled = true;
-          document.getElementById('buildGuildBtn').innerText = "Guild Active";
-        }
-      } else {
-        document.getElementById('guildStatus').innerText = "Requires Castle Lvl 5 & 1 Free Land Parcel";
-        document.getElementById('buildGuildBtn').disabled = true;
-      }
-
-      renderParcels();
-    }
-
-    // Manual Gathering
-    function gatherWoodManual() {
-      if (state.wood < state.woodCap) {
-        state.wood = Math.min(state.woodCap, state.wood + 1);
-        updateUI();
-      }
-    }
-
-    function gatherStoneManual() {
-      if (state.stone < state.stoneCap) {
-        state.stone = Math.min(state.stoneCap, state.stone + 1);
-        updateUI();
-      }
-    }
-
-    // Building Actions
-    function upgradeCastle() {
-      let cost = getCastleCost();
-      if (state.wood >= cost.wood && state.stone >= cost.stone) {
-        state.wood -= cost.wood;
-        state.stone -= cost.stone;
-        state.castleLvl++;
-        updateUI();
-      }
-    }
-
-    function buyPlotSlot() {
-      let cost = getPlotCost();
-      if (state.castleLvl >= 5 && state.silver >= cost) {
-        state.silver -= cost;
-        state.plotsOwned++;
-        state.extraPlotsBought++;
-        updateUI();
-      }
-    }
-
-    function upgradeForest() {
-      let cost = getForestCost();
-      if (state.silver >= cost) {
-        state.silver -= cost;
-        state.forestLvl++;
-        updateUI();
-      }
-    }
-
-    function upgradeQuarry() {
-      let cost = getQuarryCost();
-      if (state.silver >= cost.silver && state.wood >= cost.wood) {
-        state.silver -= cost.silver;
-        state.wood -= cost.wood;
-        state.quarryLvl++;
-        updateUI();
-      }
-    }
-
-    function buildGuild() {
-      let totalPlotsUsed = (state.forestLvl > 0 ? 1 : 0) + (state.quarryLvl > 0 ? 1 : 0) + (state.guildLvl > 0 ? 1 : 0);
-      if (state.castleLvl >= 5 && state.silver >= 1000 && state.wood >= 200 && state.stone >= 200 && totalPlotsUsed < state.plotsOwned) {
-        state.silver -= 1000;
-        state.wood -= 200;
-        state.stone -= 200;
-        state.guildLvl = 1;
-        updateUI();
-      }
-    }
-
-    // Game Loop (Passive Income every 1 second)
-    setInterval(() => {
-      let baseIncome = state.castleLvl;
-      let levyPercent = state.extraPlotsBought * 0.0006;
-      state.silver += Math.max(0.1, baseIncome * (1 - levyPercent));
-
-      if (state.forestLvl > 0 && state.wood < state.woodCap) {
-        state.wood = Math.min(state.woodCap, state.wood + state.forestLvl);
-      }
-
-      if (state.quarryLvl > 0 && state.stone < state.stoneCap) {
-        state.stone = Math.min(state.stoneCap, state.stone + state.quarryLvl);
-      }
-
-      updateUI();
-    }, 1000);
-
-    // Initial render
     updateUI();
-  </script>
+  }
+
+  function updateQuestsProgress() {
+    const now = Date.now();
+    Object.keys(state.activeQuests).forEach(qId => {
+      const active = state.activeQuests[qId];
+      const elapsed = now - active.startTime;
+      const progress = Math.min(100, (elapsed / active.duration) * 100);
+
+      const fill = document.getElementById(`fill-${qId}`);
+      if (fill) fill.style.width = `${progress}%`;
+
+      if (elapsed >= active.duration) {
+        completeQuest(qId, active.chance);
+      }
+    });
+  }
+
+  function completeQuest(questId, chance) {
+    delete state.activeQuests[questId];
+    const q = quests.find(x => x.id === questId);
+
+    const roll = Math.random() * 100;
+    if (roll <= chance) {
+      // Success Rewards
+      if (q.rewards.silver) state.silver += q.rewards.silver;
+      if (q.rewards.wood) state.wood += q.rewards.wood;
+      if (q.rewards.stone) state.stone += q.rewards.stone;
+      if (q.rewards.items) {
+        q.rewards.items.forEach(item => {
+          state.storage[item] = (state.storage[item] || 0) + 1;
+        });
+      }
+      alert(`Success! "${q.title}" completed successfully.`);
+    } else {
+      alert(`Failed! "${q.title}" was unsuccessful due to low party stats.`);
+    }
+
+    updateUI();
+  }
+
+  function updateUI() {
+    // Resources
+    document.getElementById('silverVal').innerText = state.silver;
+    document.getElementById('woodVal').innerText = state.wood;
+    document.getElementById('stoneVal').innerText = state.stone;
+
+    // Party Stats
+    const totals = getPartyTotals();
+    document.getElementById('totalStr').innerText = totals.strength;
+    document.getElementById('totalMag').innerText = totals.magic;
+    document.getElementById('totalChiv').innerText = totals.chivalry;
+
+    // Roster List
+    const rosterList = document.getElementById('rosterList');
+    if (state.roster.length === 0) {
+      rosterList.innerText = 'No units hired yet. Recruit units above to build your expedition party.';
+    } else {
+      rosterList.innerHTML = state.roster.map(u => `<div>• <strong>${u.type}</strong></div>`).join('');
+    }
+
+    // Quests UI
+    const questList = document.getElementById('questList');
+    questList.innerHTML = quests.map(q => {
+      const isActive = !!state.activeQuests[q.id];
+      const reqsHTML = Object.keys(q.reqs).map(s => {
+        const met = totals[s] >= q.reqs[s];
+        return `<span class="req ${met ? 'met' : 'unmet'}">${s.toUpperCase()}: ${totals[s]}/${q.reqs[s]}</span>`;
+      }).join('');
+
+      return `
+        <div class="quest-card">
+          <strong>${q.title}</strong>
+          <div class="quest-reqs">${reqsHTML}</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">
+            Rewards: ${q.rewards.silver ? q.rewards.silver + ' Silver ' : ''} 
+            ${q.rewards.items ? '(' + q.rewards.items.join(', ') + ')' : ''}
+          </div>
+          ${isActive ? `
+            <div class="progress-bar"><div class="progress-fill" id="fill-${q.id}"></div></div>
+          ` : `
+            <button class="btn" style="margin-top: 10px;" onclick="startQuest('${q.id}')">
+              Send Party (${q.duration}s)
+            </button>
+          `}
+        </div>
+      `;
+    }).join('');
+
+    // Storage UI
+    const storageGrid = document.getElementById('storageGrid');
+    const items = Object.keys(state.storage);
+    if (items.length === 0) {
+      storageGrid.innerHTML = `<span class="inv-chip" style="color: var(--text-muted);">Storage empty</span>`;
+    } else {
+      storageGrid.innerHTML = items.map(i => `
+        <span class="inv-chip">${i} x${state.storage[i]}</span>
+      `).join('');
+    }
+  }
+
+  setInterval(updateQuestsProgress, 100);
+  updateUI();
+</script>
+
 </body>
 </html>
