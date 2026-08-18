@@ -2,926 +2,246 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Fantasy Mogul Mobile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fantasy Mogul</title>
   <style>
     :root {
-      --bg-dark: #12131c;
-      --card-bg: #1e1f2d;
-      --card-border: #33354a;
-      --accent-gold: #f1c40f;
-      --accent-green: #2ecc71;
-      --accent-red: #e74c3c;
-      --accent-purple: #9b59b6;
-      --accent-blue: #3498db;
-      --text-main: #e0e0e0;
-      --text-dim: #a0a0b0;
+      --bg: #12141d;
+      --card: #1e2230;
+      --accent: #e2b041;
+      --text: #e0e6ed;
+      --muted: #8a99ad;
+      --border: #2e3548;
+      --green: #41b883;
+      --purple: #9b51e0;
+      --red: #e74c3c;
     }
-
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-
     body {
-      margin: 0;
-      padding: 0;
-      background-color: var(--bg-dark);
-      color: var(--text-main);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      padding-bottom: 75px;
-      padding-top: env(safe-area-inset-top);
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 16px;
     }
-
-    /* Fixed Header HUD */
-    .hud {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background-color: #181926;
-      border-bottom: 1px solid var(--card-border);
-      padding: 10px 14px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      font-size: 0.82em;
-      font-weight: 600;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    }
-
-    .hud-item {
-      background: var(--card-bg);
-      padding: 6px 8px;
-      border-radius: 6px;
-      border: 1px solid var(--card-border);
-      text-align: center;
-    }
-
-    /* Container & Tab Sections */
-    .container {
-      padding: 12px;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    /* Cards */
-    .card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 12px;
-    }
-
-    .card h3 {
-      margin: 0 0 8px 0;
-      font-size: 1.05em;
-      color: var(--accent-gold);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .card p {
-      margin: 4px 0;
-      font-size: 0.88em;
-      color: var(--text-dim);
-    }
-
-    /* Buttons */
-    .btn {
-      width: 100%;
-      background-color: var(--accent-green);
-      color: #fff;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 0.9em;
-      font-weight: bold;
-      margin-top: 8px;
-      cursor: pointer;
-      display: inline-block;
-      text-align: center;
-    }
-
-    .btn:active:not(:disabled) {
-      transform: scale(0.98);
-      opacity: 0.9;
-    }
-
-    .btn:disabled {
-      background-color: #3a3b4c;
-      color: #777;
-      cursor: not-allowed;
-    }
-
-    .btn-sell { background-color: #e67e22; }
-    .btn-castle { background-color: var(--accent-gold); color: #111; }
-    .btn-purple { background-color: var(--accent-purple); }
-    .btn-blue { background-color: var(--accent-blue); }
-
-    /* Bottom Mobile Navigation */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      background-color: #181926;
-      border-top: 1px solid var(--card-border);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 1000;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-
-    .nav-item {
-      flex: 1;
-      text-align: center;
-      padding: 8px 0;
-      color: var(--text-dim);
-      font-size: 0.75em;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .nav-item.active {
-      color: var(--accent-gold);
-    }
-
-    .nav-icon {
-      font-size: 1.3em;
-      display: block;
-      margin-bottom: 2px;
-    }
-
-    /* Log Box */
-    .log-box {
-      background-color: #0b0b10;
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
-      height: 250px;
-      overflow-y: auto;
-      padding: 10px;
-      font-family: monospace;
-      font-size: 0.8em;
-    }
-
-    .log-entry { margin-bottom: 5px; border-bottom: 1px solid #1a1b26; padding-bottom: 3px; }
+    h1, h2, h3 { color: var(--accent); margin-top: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .resource-bar { display: flex; flex-wrap: wrap; gap: 12px; background: #191c28; padding: 12px; border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--border); }
+    .res-item { font-weight: bold; font-size: 0.95rem; }
+    button { background: var(--accent); color: #000; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 6px; margin-right: 4px; }
+    button:disabled { background: var(--muted); opacity: 0.5; cursor: not-allowed; }
+    .buff-tag { display: inline-block; background: var(--purple); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin: 2px; }
+    .badge { background: var(--border); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+    select, input[type="range"] { margin-top: 6px; padding: 6px; background: #191c28; color: var(--text); border: 1px solid var(--border); border-radius: 4px; }
   </style>
 </head>
 <body>
 
-  <!-- Top HUD Bar -->
-  <div class="hud">
-    <div class="hud-item">🪙 <span id="hud-silver" style="color:var(--accent-green)">125</span></div>
-    <div class="hud-item">🪵 <span id="hud-wood">50</span></div>
-    <div class="hud-item">🪨 <span id="hud-stone">50</span></div>
-    <div class="hud-item">✨ <span id="hud-mana" style="color:var(--accent-blue)">0</span></div>
-    <div class="hud-item">👑 Levy: <span id="hud-levy" style="color:var(--accent-red)">0%</span></div>
-    <div class="hud-item">⚔️ Str: <span id="hud-army" style="color:var(--accent-blue)">0</span></div>
+  <h1>Fantasy Mogul</h1>
+
+  <!-- Resources Overview -->
+  <div class="resource-bar">
+    <div class="res-item">Silver: <span id="silver">0</span></div>
+    <div class="res-item">Wood: <span id="wood">0</span></div>
+    <div class="res-item">Stone: <span id="stone">0</span></div>
+    <div class="res-item">Souls: <span id="souls">0</span></div>
+    <div class="res-item">Party Str: <span id="partyStr">10</span></div>
+    <div class="res-item">Party Def: <span id="partyDef">10</span></div>
   </div>
 
-  <div class="container">
+  <div id="buffContainer" style="margin-bottom: 16px;"></div>
 
-    <!-- TAB 1: REALM (BUILDINGS) -->
-    <div id="tab-realm" class="tab-content active">
+  <div class="grid">
+    <!-- Castle & Soul Flask -->
+    <div class="card">
+      <h2>Castle <span class="badge" id="castleLvl">Lvl 1</span></h2>
+      <p>Upgrade Castle to unlock advanced systems and higher-tier base enchantments.</p>
+      <button onclick="upgradeCastle()">Upgrade Castle (<span id="castleCost">1000</span> Silver)</button>
+      <hr style="border-color: var(--border); margin: 12px 0;">
+      <h3>Soul Flask Status</h3>
+      <p id="flaskStatus">Locked (Requires Castle Lvl 10)</p>
+      <button id="buyFlaskBtn" onclick="buySoulFlask()" disabled>Buy Soul Flask (25,000 Silver)</button>
+    </div>
+
+    <!-- Expedition Combat & Soul Harvesting -->
+    <div class="card">
+      <h2>Combat & Expeditions</h2>
+      <p>Slay monsters to gain Silver and rare loot drops. Requires Soul Flask to harvest Souls.</p>
+      <button onclick="fightMonster()">Fight Monster</button>
+      <div style="margin-top: 10px; font-size: 0.85rem; color: var(--muted);" id="combatLog">
+        Ready for combat...
+      </div>
+    </div>
+
+    <!-- Disenchanting & Soul Forge -->
+    <div class="card">
+      <h2>Soul Forge & Disenchanting</h2>
+      <p>Destroy rare loot to learn exotic enchantments, or spend harvested Souls to apply learned effects to equipment.</p>
       
-      <!-- Forest -->
-      <div class="card">
-        <h3>🌲 Forest <span id="forest-lvl-badge">Lv 0</span></h3>
-        <p id="forest-desc">Produces Wood planks for building & market sales.</p>
-        <button id="btn-forest" class="btn" onclick="upgradeForest()">Build Forest (15 Silver)</button>
+      <div style="margin-bottom: 12px;">
+        <strong>Rare Loot Gear:</strong> <span id="rareLootCount">0</span><br>
+        <button onclick="disenchantLoot()">Disenchant Loot (Learn Exotic Recipe)</button>
       </div>
 
-      <!-- Quarry -->
-      <div class="card">
-        <h3>⛏️ Quarry <span id="quarry-lvl-badge">Lv 0</span></h3>
-        <p id="quarry-desc">Produces Stone slabs for building & upgrades.</p>
-        <button id="btn-quarry" class="btn" onclick="upgradeQuarry()">Build Quarry (20 Silver)</button>
+      <hr style="border-color: var(--border); margin: 12px 0;">
+
+      <h3>Craft Custom Enchantment</h3>
+      <label for="enchSelect">Select Effect:</label><br>
+      <select id="enchSelect">
+        <option value="">-- No Enchantments Learned --</option>
+      </select><br>
+
+      <label for="soulSlider">Soul Investment: <span id="soulVal">10</span></label><br>
+      <input type="range" id="soulSlider" min="10" max="500" value="10" oninput="document.getElementById('soulVal').innerText = this.value"><br>
+
+      <button onclick="craftCustomEnchantedGear()">Enchant Equipment</button>
+      <button onclick="sellEnchantedItem()">Sell Gear (+<span id="gearValue">0</span> Silver)</button>
+
+      <div style="margin-top: 8px;">
+        Enchanted Inventory: <span id="enchantedItems">0</span>
       </div>
-
-      <!-- Concrete Plant -->
-      <div class="card">
-        <h3>🏗️ Concrete Plant <span id="concrete-lvl-badge">Lv 0</span></h3>
-        <p id="concrete-desc">Produces Concrete for advanced construction.</p>
-        <button id="btn-concrete" class="btn" onclick="upgradeConcrete()">Build Concrete Plant (35 Silver)</button>
-      </div>
-
-      <!-- Silver Mine -->
-      <div class="card">
-        <h3>🪙 Silver Mine <span id="silvermine-lvl-badge">Lv 0</span></h3>
-        <p id="silvermine-desc">Mines raw Silver directly into your treasury.</p>
-        <button id="btn-silvermine" class="btn" onclick="upgradeSilverMine()">Build Silver Mine (150 Silver)</button>
-      </div>
-
-      <!-- Library -->
-      <div class="card" style="border-color: var(--accent-blue);">
-        <h3>📚 Library <span id="library-lvl-badge">Lv 0</span></h3>
-        <p id="library-desc">Produces 10 Mana per tick for magical research.</p>
-        <button id="btn-library" class="btn" onclick="upgradeLibrary()">Build Library (12,500 S, 200 W, 90 St)</button>
-      </div>
-
-      <!-- Spell Shop -->
-      <div class="card" style="border-color: var(--accent-purple);">
-        <h3>🔮 Spell Shop <span id="spellshop-lvl-badge">Lv 0</span></h3>
-        <p id="spellshop-desc">Channel Mana to cast production-boosting spells.</p>
-        <button id="btn-spellshop" class="btn btn-purple" onclick="upgradeSpellShop()">Build Spell Shop (25,000 S, 300 W, 150 St)</button>
-
-        <div id="spell-controls" style="display: none; margin-top: 10px; border-top: 1px solid var(--card-border); padding-top: 8px;">
-          <p><strong>Active Arcane Spells:</strong></p>
-          <button id="btn-spell-wood" class="btn btn-blue" onclick="castSpell('wood')">Chant of Harvesting (50 Mana) [2x Wood]</button>
-          <button id="btn-spell-stone" class="btn btn-blue" onclick="castSpell('stone')" style="margin-top:6px;">Terraform Rune (50 Mana) [2x Stone]</button>
-          <button id="btn-spell-silver" class="btn btn-blue" onclick="castSpell('silver')" style="margin-top:6px;">Alchemical Transmutation (100 Mana) [3x Silver]</button>
-        </div>
-      </div>
-
-      <!-- Marketplace -->
-      <div class="card">
-        <h3>⚖️ Marketplace</h3>
-        <p>Base Rates: Wood = 9 Silver | Stone = 10 Silver</p>
-        <button class="btn btn-sell" onclick="sellWood()">Sell All Wood</button>
-        <button class="btn btn-sell" onclick="sellStone()" style="margin-top:6px;">Sell All Stone</button>
-      </div>
-    </div>
-
-    <!-- TAB 2: COUNCIL & CASTLE -->
-    <div id="tab-council" class="tab-content">
-      <div class="card" style="border-color: var(--accent-gold);">
-        <h3>🏰 Castle Seat <span id="castle-lvl-badge">Lv 0</span></h3>
-        <p id="castle-desc">Unlocks Council capacity, unit training, and Imperial Auctions at Level 20.</p>
-        <button id="btn-castle" class="btn btn-castle" onclick="upgradeCastle()">Build Castle (125 Silver)</button>
-        <button class="btn btn-castle" onclick="debugCastle20()" style="margin-top:6px; background-color:#d35400; color:#fff;">Debug: Jump to Castle Lv. 20</button>
-      </div>
-
-      <div class="card">
-        <h3>🧙 Active Council Members</h3>
-        <div id="council-list"><p>Build a Castle to unlock Council positions.</p></div>
-      </div>
-
-      <div class="card">
-        <h3>🚶 Wandering Candidates</h3>
-        <div id="candidate-list"><p>No candidates waiting at court.</p></div>
-      </div>
-    </div>
-
-    <!-- TAB 3: GARRISON & EXPEDITIONS -->
-    <div id="tab-garrison" class="tab-content">
-      <div class="card">
-        <h3>⚔️ Castle Barracks</h3>
-        <p>Recruit units to form expedition parties.</p>
-        <p>Knights: <strong id="knight-count">0</strong> (Strength: 10 each)</p>
-        <button class="btn" onclick="recruitKnight()">Recruit Knight (25 Silver, 10 Wood, 15 Stone)</button>
-      </div>
-
-      <div class="card" style="border-color: var(--accent-purple);">
-        <h3>📜 Expedition Contracts</h3>
-        <div id="contract-list"><p>Build a Castle to receive expedition dispatches.</p></div>
-      </div>
-    </div>
-
-    <!-- TAB 4: AUCTIONS -->
-    <div id="tab-auctions" class="tab-content">
-      <div class="card" style="border-color: var(--accent-purple);">
-        <h3>🏛️ Imperial Peerage Auctions</h3>
-        <p id="auction-lock-msg" style="color:var(--accent-red)">Requires Castle Level 20 to participate in Land Auctions.</p>
-        <div id="auction-view" style="display:none;">
-          <h4 id="auction-title">No Active Auctions</h4>
-          <p>Time Remaining: <strong id="auction-time" style="color:var(--accent-red)">0s</strong></p>
-          <p>Highest Bid: <strong id="auction-high-bid" style="color:var(--accent-green)">0</strong> (<span id="auction-high-bidder">None</span>)</p>
-          <button class="btn btn-purple" onclick="placeBid(6250)">Outbid +6,250 Silver</button>
-          <button class="btn btn-purple" onclick="placeBid(31250)" style="margin-top:6px;">Outbid +31,250 Silver</button>
-          <button class="btn btn-purple" onclick="bidMaterials()" style="margin-top:6px;">Ship Materials (1,250 Wood + 1,250 Stone)</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 5: LOG -->
-    <div id="tab-log" class="tab-content">
-      <div class="card">
-        <h3>📜 Realm Event Log</h3>
-        <div id="log-box" class="log-box"></div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Bottom Navigation -->
-  <div class="bottom-nav">
-    <div class="nav-item active" onclick="switchTab('realm', this)">
-      <span class="nav-icon">🌲</span>Realm
-    </div>
-    <div class="nav-item" onclick="switchTab('council', this)">
-      <span class="nav-icon">🏰</span>Council
-    </div>
-    <div class="nav-item" onclick="switchTab('garrison', this)">
-      <span class="nav-icon">⚔️</span>Garrison
-    </div>
-    <div class="nav-item" onclick="switchTab('auctions', this)">
-      <span class="nav-icon">🏛️</span>Auctions
-    </div>
-    <div class="nav-item" onclick="switchTab('log', this)">
-      <span class="nav-icon">📜</span>Log
     </div>
   </div>
 
   <script>
-    // State Variables
-    let silver = 125;
-    let wood = 50;
-    let stone = 50;
-    let concrete = 0;
-    let mana = 0;
-
-    let forestLvl = 0;
-    let quarryLvl = 0;
-    let concreteLvl = 0;
-    let silverMineLvl = 0;
-    let libraryLvl = 0;
-    let spellShopLvl = 0;
-    let castleLvl = 0;
-
-    let knights = 0;
-    let landCharters = 0;
-
-    // Active Spells Timers (seconds remaining)
-    let spellTimers = {
-      wood: 0,
-      stone: 0,
-      silver: 0
+    let state = {
+      silver: 30000, wood: 0, stone: 0, souls: 0,
+      castleLvl: 1, castleCost: 1000,
+      hasSoulFlask: false,
+      partyStr: 10, partyDef: 10,
+      rareLoot: 0,
+      enchantedItems: 0,
+      lastGearPower: 0,
+      knownEnchantments: [],
+      activeBuffs: {}
     };
 
-    let council = [];
-    let candidates = [];
-    let contracts = [];
-
-    let activeAuction = null;
-    let auctionInterval = null;
-
-    // Building Costs
-    const forestCosts = [
-      { s: 15, w: 0, st: 0 },
-      { s: 20, w: 0, st: 0 },
-      { s: 23, w: 0, st: 0 }
-    ];
-
-    const quarryCosts = [
-      { s: 20, w: 0, st: 0 },
-      { s: 10, w: 0, st: 0 },
-      { s: 11.5, w: 0, st: 0 }
-    ];
-
-    const concreteCosts = [
-      { s: 35, w: 0, st: 0 },
-      { s: 10, w: 0, st: 0 },
-      { s: 11.5, w: 0, st: 0 }
-    ];
-
-    const silverMineCosts = [
-      { s: 150, w: 0, st: 0 },
-      { s: 120, w: 0, st: 0 },
-      { s: 138, w: 0, st: 0 }
-    ];
-
-    const libraryCosts = [
-      { s: 12500, w: 200, st: 90 },
-      { s: 10000, w: 150, st: 75 },
-      { s: 11500, w: 175, st: 85 }
-    ];
-
-    const spellShopCosts = [
-      { s: 25000, w: 300, st: 150 },
-      { s: 20000, w: 250, st: 125 },
-      { s: 23000, w: 275, st: 140 }
-    ];
-
-    function getCastleCost(lvl) {
-      if (lvl === 0) return { s: 125, w: 50, st: 50 };
-      const baseS = 125 * Math.pow(1.8, lvl);
-      const baseW = 50 * Math.pow(1.6, lvl);
-      const baseSt = 50 * Math.pow(1.6, lvl);
-      return {
-        s: Math.floor(baseS / 5) * 5,
-        w: Math.floor(baseW / 5) * 5,
-        st: Math.floor(baseSt / 5) * 5
-      };
-    }
-
-    function getCrownLevyRate() {
-      const totalLevels = forestLvl + quarryLvl + concreteLvl + silverMineLvl + libraryLvl + spellShopLvl + castleLvl;
-      const rawRate = totalLevels * 0.03;
-      let stewardBonus = 0;
-      council.forEach(c => {
-        if (c.role === 'Steward') stewardBonus += c.skill * 0.01;
-      });
-      return Math.min(Math.max(0, rawRate - stewardBonus), 0.50);
-    }
-
-    function logMessage(msg) {
-      const box = document.getElementById('log-box');
-      const entry = document.createElement('div');
-      entry.className = 'log-entry';
-      entry.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
-      box.appendChild(entry);
-      box.scrollTop = box.scrollHeight;
-    }
-
-    function switchTab(tabId, el) {
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById('tab-' + tabId).classList.add('active');
-      el.classList.add('active');
-    }
-
     function updateUI() {
-      // HUD
-      document.getElementById('hud-silver').innerText = Math.floor(silver).toLocaleString();
-      document.getElementById('hud-wood').innerText = wood.toLocaleString();
-      document.getElementById('hud-stone').innerText = stone.toLocaleString();
-      document.getElementById('hud-mana').innerText = mana.toLocaleString();
-      document.getElementById('hud-levy').innerText = (getCrownLevyRate() * 100).toFixed(1) + "%";
-      document.getElementById('hud-army').innerText = knights * 10;
+      document.getElementById('silver').innerText = Math.floor(state.silver);
+      document.getElementById('wood').innerText = Math.floor(state.wood);
+      document.getElementById('stone').innerText = Math.floor(state.stone);
+      document.getElementById('souls').innerText = Math.floor(state.souls);
+      document.getElementById('castleLvl').innerText = 'Lvl ' + state.castleLvl;
+      document.getElementById('castleCost').innerText = state.castleCost;
+      document.getElementById('partyStr').innerText = state.partyStr;
+      document.getElementById('partyDef').innerText = state.partyDef;
+      document.getElementById('rareLootCount').innerText = state.rareLoot;
+      document.getElementById('enchantedItems').innerText = state.enchantedItems;
 
-      // Forest
-      document.getElementById('forest-lvl-badge').innerText = `Lv ${forestLvl}`;
-      const btnF = document.getElementById('btn-forest');
-      if (forestLvl < 3) {
-        const c = forestCosts[forestLvl];
-        btnF.innerText = `Upgrade Forest (${c.s} Silver)`;
-        btnF.disabled = silver < c.s;
+      // Flask UI
+      if (state.hasSoulFlask) {
+        document.getElementById('flaskStatus').innerText = "Active (Harvesting Souls)";
+        document.getElementById('buyFlaskBtn').disabled = true;
+      } else if (state.castleLvl >= 10) {
+        document.getElementById('flaskStatus').innerText = "Available for Purchase!";
+        document.getElementById('buyFlaskBtn').disabled = false;
       } else {
-        btnF.innerText = "Forest Max Level (Lv 3)";
-        btnF.disabled = true;
+        document.getElementById('flaskStatus').innerText = "Locked (Requires Castle Lvl 10)";
+        document.getElementById('buyFlaskBtn').disabled = true;
       }
 
-      // Quarry
-      document.getElementById('quarry-lvl-badge').innerText = `Lv ${quarryLvl}`;
-      const btnQ = document.getElementById('btn-quarry');
-      if (quarryLvl < 3) {
-        const c = quarryCosts[quarryLvl];
-        btnQ.innerText = `Upgrade Quarry (${c.s} Silver)`;
-        btnQ.disabled = silver < c.s;
+      // Dropdown menu for learned enchantments
+      let select = document.getElementById('enchSelect');
+      select.innerHTML = '';
+      if (state.knownEnchantments.length === 0) {
+        select.innerHTML = '<option value="">-- No Enchantments Learned --</option>';
       } else {
-        btnQ.innerText = "Quarry Max Level (Lv 3)";
-        btnQ.disabled = true;
+        state.knownEnchantments.forEach(e => {
+          let opt = document.createElement('option');
+          opt.value = e;
+          opt.innerText = e;
+          select.appendChild(opt);
+        });
       }
-
-      // Concrete
-      document.getElementById('concrete-lvl-badge').innerText = `Lv ${concreteLvl}`;
-      const btnC = document.getElementById('btn-concrete');
-      if (concreteLvl < 3) {
-        const c = concreteCosts[concreteLvl];
-        btnC.innerText = `Upgrade Concrete Plant (${c.s} Silver)`;
-        btnC.disabled = silver < c.s;
-      } else {
-        btnC.innerText = "Concrete Plant Max Level (Lv 3)";
-        btnC.disabled = true;
-      }
-
-      // Silver Mine
-      document.getElementById('silvermine-lvl-badge').innerText = `Lv ${silverMineLvl}`;
-      const btnSM = document.getElementById('btn-silvermine');
-      if (silverMineLvl < 3) {
-        const c = silverMineCosts[silverMineLvl];
-        btnSM.innerText = `Upgrade Silver Mine (${c.s} Silver)`;
-        btnSM.disabled = silver < c.s;
-      } else {
-        btnSM.innerText = "Silver Mine Max Level (Lv 3)";
-        btnSM.disabled = true;
-      }
-
-      // Library
-      document.getElementById('library-lvl-badge').innerText = `Lv ${libraryLvl}`;
-      const btnLib = document.getElementById('btn-library');
-      if (libraryLvl < 3) {
-        const c = libraryCosts[libraryLvl];
-        btnLib.innerText = libraryLvl === 0 
-          ? `Build Library (${c.s.toLocaleString()} S, ${c.w} W, ${c.st} St)` 
-          : `Upgrade Library (${c.s.toLocaleString()} S, ${c.w} W, ${c.st} St)`;
-        btnLib.disabled = (silver < c.s || wood < c.w || stone < c.st);
-      } else {
-        btnLib.innerText = "Library Max Level (Lv 3)";
-        btnLib.disabled = true;
-      }
-
-      // Spell Shop
-      document.getElementById('spellshop-lvl-badge').innerText = `Lv ${spellShopLvl}`;
-      const btnSS = document.getElementById('btn-spellshop');
-      const spellCtrls = document.getElementById('spell-controls');
-      if (spellShopLvl < 3) {
-        const c = spellShopCosts[spellShopLvl];
-        btnSS.innerText = spellShopLvl === 0 
-          ? `Build Spell Shop (${c.s.toLocaleString()} S, ${c.w} W, ${c.st} St)` 
-          : `Upgrade Spell Shop (${c.s.toLocaleString()} S, ${c.w} W, ${c.st} St)`;
-        btnSS.disabled = (silver < c.s || wood < c.w || stone < c.st);
-      } else {
-        btnSS.innerText = "Spell Shop Max Level (Lv 3)";
-        btnSS.disabled = true;
-      }
-
-      if (spellShopLvl > 0) {
-        spellCtrls.style.display = "block";
-        const btnW = document.getElementById('btn-spell-wood');
-        const btnSt = document.getElementById('btn-spell-stone');
-        const btnSil = document.getElementById('btn-spell-silver');
-
-        btnW.innerText = spellTimers.wood > 0 ? `Chant Active (${spellTimers.wood}s)` : "Chant of Harvesting (50 Mana) [2x Wood]";
-        btnW.disabled = mana < 50 || spellTimers.wood > 0;
-
-        btnSt.innerText = spellTimers.stone > 0 ? `Rune Active (${spellTimers.stone}s)` : "Terraform Rune (50 Mana) [2x Stone]";
-        btnSt.disabled = mana < 50 || spellTimers.stone > 0;
-
-        btnSil.innerText = spellTimers.silver > 0 ? `Transmutation Active (${spellTimers.silver}s)` : "Alchemical Transmutation (100 Mana) [3x Silver]";
-        btnSil.disabled = mana < 100 || spellTimers.silver > 0;
-      } else {
-        spellCtrls.style.display = "none";
-      }
-
-      // Castle
-      document.getElementById('castle-lvl-badge').innerText = `Lv ${castleLvl}`;
-      const btnCastle = document.getElementById('btn-castle');
-      const cCost = getCastleCost(castleLvl);
-      btnCastle.innerText = castleLvl === 0 ? `Build Castle (${cCost.s} S, ${cCost.w} W, ${cCost.st} St)` : `Upgrade Castle to Lv ${castleLvl + 1} (${cCost.s} S, ${cCost.w} W, ${cCost.st} St)`;
-      btnCastle.disabled = (silver < cCost.s || wood < cCost.w || stone < cCost.st);
-
-      // Council & Candidates
-      renderCouncil();
-
-      // Garrison
-      document.getElementById('knight-count').innerText = knights;
-
-      // Auctions Tab
-      const lockMsg = document.getElementById('auction-lock-msg');
-      const auctionView = document.getElementById('auction-view');
-      if (castleLvl >= 20) {
-        lockMsg.style.display = "none";
-        auctionView.style.display = "block";
-      } else {
-        lockMsg.style.display = "block";
-        auctionView.style.display = "none";
-      }
-
-      renderContracts();
-    }
-
-    // Upgrade Handlers
-    function upgradeForest() {
-      const c = forestCosts[forestLvl];
-      if (silver >= c.s && forestLvl < 3) {
-        silver -= c.s; forestLvl++;
-        logMessage(`Forest upgraded to Level ${forestLvl}.`);
-        updateUI();
-      }
-    }
-
-    function upgradeQuarry() {
-      const c = quarryCosts[quarryLvl];
-      if (silver >= c.s && quarryLvl < 3) {
-        silver -= c.s; quarryLvl++;
-        logMessage(`Quarry upgraded to Level ${quarryLvl}.`);
-        updateUI();
-      }
-    }
-
-    function upgradeConcrete() {
-      const c = concreteCosts[concreteLvl];
-      if (silver >= c.s && concreteLvl < 3) {
-        silver -= c.s; concreteLvl++;
-        logMessage(`Concrete Plant upgraded to Level ${concreteLvl}.`);
-        updateUI();
-      }
-    }
-
-    function upgradeSilverMine() {
-      const c = silverMineCosts[silverMineLvl];
-      if (silver >= c.s && silverMineLvl < 3) {
-        silver -= c.s; silverMineLvl++;
-        logMessage(`Silver Mine upgraded to Level ${silverMineLvl}.`);
-        updateUI();
-      }
-    }
-
-    function upgradeLibrary() {
-      const c = libraryCosts[libraryLvl];
-      if (silver >= c.s && wood >= c.w && stone >= c.st && libraryLvl < 3) {
-        silver -= c.s; wood -= c.w; stone -= c.st;
-        libraryLvl++;
-        logMessage(`Library built/upgraded to Level ${libraryLvl}! Generating ${libraryLvl * 10} Mana per tick.`);
-        updateUI();
-      }
-    }
-
-    function upgradeSpellShop() {
-      const c = spellShopCosts[spellShopLvl];
-      if (silver >= c.s && wood >= c.w && stone >= c.st && spellShopLvl < 3) {
-        silver -= c.s; wood -= c.w; stone -= c.st;
-        spellShopLvl++;
-        logMessage(`Spell Shop built/upgraded to Level ${spellShopLvl}! Magical incantations unlocked.`);
-        updateUI();
-      }
-    }
-
-    function castSpell(type) {
-      if (type === 'wood' && mana >= 50 && spellTimers.wood <= 0) {
-        mana -= 50;
-        spellTimers.wood = 30;
-        logMessage("🔮 Cast 'Chant of Harvesting'! Wood production doubled for 30s.");
-      } else if (type === 'stone' && mana >= 50 && spellTimers.stone <= 0) {
-        mana -= 50;
-        spellTimers.stone = 30;
-        logMessage("🔮 Cast 'Terraform Rune'! Stone production doubled for 30s.");
-      } else if (type === 'silver' && mana >= 100 && spellTimers.silver <= 0) {
-        mana -= 100;
-        spellTimers.silver = 30;
-        logMessage("🔮 Cast 'Alchemical Transmutation'! Silver Mine output tripled for 30s.");
-      }
-      updateUI();
     }
 
     function upgradeCastle() {
-      const c = getCastleCost(castleLvl);
-      if (silver >= c.s && wood >= c.w && stone >= c.st) {
-        silver -= c.s; wood -= c.w; stone -= c.st;
-        castleLvl++;
-        logMessage(`Castle upgraded to Level ${castleLvl}! Council capacity expanded.`);
-        if (castleLvl === 20) triggerAuction();
-        updateUI();
-      }
-    }
+      if (state.silver >= state.castleCost) {
+        state.silver -= state.castleCost;
+        state.castleLvl++;
+        state.castleCost = Math.floor(state.castleCost * 1.7);
 
-    function debugCastle20() {
-      castleLvl = 20;
-      silver += 100000; wood += 5000; stone += 5000; mana += 500;
-      logMessage("Debug: Castle set to Lv. 20! Imperial Auctions & High Resources granted.");
-      triggerAuction();
-      updateUI();
-    }
-
-    // Sales
-    function sellWood() {
-      if (wood > 0) {
-        const gross = wood * 9;
-        const net = gross * (1 - getCrownLevyRate());
-        silver += net;
-        logMessage(`Sold ${wood} Wood for +${net.toFixed(0)} Silver (Levy: ${(getCrownLevyRate()*100).toFixed(1)}%).`);
-        wood = 0;
-        updateUI();
-      }
-    }
-
-    function sellStone() {
-      if (stone > 0) {
-        const gross = stone * 10;
-        const net = gross * (1 - getCrownLevyRate());
-        silver += net;
-        logMessage(`Sold ${stone} Stone for +${net.toFixed(0)} Silver (Levy: ${(getCrownLevyRate()*100).toFixed(1)}%).`);
-        stone = 0;
-        updateUI();
-      }
-    }
-
-    // Council System
-    function generateCandidate() {
-      if (candidates.length >= 2 || castleLvl === 0) return;
-      const roles = ["Steward", "Wizard", "Spymaster", "Captain"];
-      const names = ["Alden", "Balthazar", "Cedric", "Doran", "Elowen"];
-      const role = roles[Math.floor(Math.random() * roles.length)];
-      const name = names[Math.floor(Math.random() * names.length)];
-      const skill = Math.floor(Math.random() * 3) + 1;
-      candidates.push({ name, role, skill, salary: skill * 5 });
-    }
-
-    function hireCandidate(index) {
-      if (council.length < castleLvl) {
-        const cand = candidates.splice(index, 1)[0];
-        council.push(cand);
-        logMessage(`Hired ${cand.name} the ${cand.role} (Skill: ${cand.skill}).`);
-        updateUI();
-      }
-    }
-
-    function renderCouncil() {
-      const cList = document.getElementById('council-list');
-      const candList = document.getElementById('candidate-list');
-
-      if (castleLvl === 0) {
-        cList.innerHTML = `<p style="color:#888;">Build a Castle to unlock Council positions.</p>`;
-        candList.innerHTML = `<p style="color:#888;">No candidates.</p>`;
-        return;
-      }
-
-      cList.innerHTML = council.length === 0 ? `<p style="color:#888;">No active counselors.</p>` : 
-        council.map(c => `<div><strong>${c.name}</strong> (${c.role} - Skill: ${c.skill}) — Salary: ${c.salary} S/tick</div>`).join('');
-
-      if (council.length < castleLvl) {
-        candList.innerHTML = candidates.length === 0 ? `<p style="color:#888;">Waiting for candidates to arrive...</p>` :
-          candidates.map((c, i) => `
-            <div style="margin-bottom:6px;">
-              <strong>${c.name}</strong> (${c.role} - Skill: ${c.skill}) | Salary: ${c.salary} S/tick
-              <button class="btn" style="padding:6px; margin-top:4px;" onclick="hireCandidate(${i})">Hire Counselor</button>
-            </div>
-          `).join('');
-      } else {
-        candList.innerHTML = `<p style="color:var(--accent-gold);">Council Full (${council.length}/${castleLvl}). Upgrade Castle for slots.</p>`;
-      }
-    }
-
-    // Garrison & Expeditions
-    function recruitKnight() {
-      if (silver >= 25 && wood >= 10 && stone >= 15) {
-        silver -= 25; wood -= 10; stone -= 15;
-        knights++;
-        logMessage("Recruited 1 Knight (+10 Army Strength).");
-        updateUI();
-      }
-    }
-
-    function generateContract() {
-      if (castleLvl === 0 || contracts.length >= 2) return;
-      const targets = ["Bandit Keep", "Goblin Mine", "Dungeon Ruin"];
-      const target = targets[Math.floor(Math.random() * targets.length)];
-      const reqStr = (Math.floor(Math.random() * 3) + 1) * 20;
-      contracts.push({
-        title: `Clear ${target}`,
-        reqStr,
-        reward: reqStr * 15
-      });
-    }
-
-    function dispatchContract(index) {
-      const c = contracts[index];
-      if (knights * 10 >= c.reqStr) {
-        silver += c.reward;
-        logMessage(`Completed expedition '${c.title}'! Earned +${c.reward} Silver.`);
-        contracts.splice(index, 1);
-        updateUI();
-      }
-    }
-
-    function renderContracts() {
-      const cList = document.getElementById('contract-list');
-      if (castleLvl === 0) {
-        cList.innerHTML = `<p style="color:#888;">Build a Castle to view dispatches.</p>`;
-        return;
-      }
-      if (contracts.length === 0) {
-        cList.innerHTML = `<p style="color:#888;">No active dispatches right now...</p>`;
-        return;
-      }
-      cList.innerHTML = contracts.map((c, i) => `
-        <div style="border-top:1px solid #333; padding-top:6px; margin-top:6px;">
-          <strong>${c.title}</strong><br>
-          Requires Strength: ${c.reqStr} (Current: ${knights * 10})<br>
-          Reward: ${c.reward} Silver<br>
-          <button class="btn btn-purple" style="padding:6px; margin-top:4px;" onclick="dispatchContract(${i})" ${knights * 10 < c.reqStr ? 'disabled' : ''}>Dispatch Party</button>
-        </div>
-      `).join('');
-    }
-
-    // Imperial Auction System
-    function triggerAuction() {
-      if (activeAuction || castleLvl < 20) return;
-
-      const rivals = ["Baron Vane", "Duchess Lysandra", "Prince Archon", "Queen Valeria", "Emperor Aurelius"];
-      const rival = rivals[Math.floor(Math.random() * rivals.length)];
-
-      activeAuction = {
-        title: `Imperial Grant of ${rival}'s Dominion`,
-        highBid: 31250,
-        highBidder: rival,
-        timeLeft: 15
-      };
-
-      logMessage(`🏛️ AUCTION OPENED: '${activeAuction.title}'. Opening bid: 31,250 Silver by ${rival}.`);
-
-      auctionInterval = setInterval(() => {
-        if (!activeAuction) return;
-
-        activeAuction.timeLeft--;
-
-        if (Math.random() < 0.35 && activeAuction.highBidder === "Player") {
-          activeAuction.highBid += 15625;
-          const newRival = rivals[Math.floor(Math.random() * rivals.length)];
-          activeAuction.highBidder = newRival;
-          logMessage(`⚔️ ${newRival} outbid you! High Bid: ${activeAuction.highBid.toLocaleString()} Silver.`);
+        // Castle Progression Base Unlocks
+        if (state.castleLvl === 10 && !state.knownEnchantments.includes("Minor Sharpness (+Str)")) {
+          state.knownEnchantments.push("Minor Sharpness (+Str)");
         }
-
-        if (activeAuction.timeLeft <= 0) {
-          endAuction();
+        if (state.castleLvl === 15 && !state.knownEnchantments.includes("Swiftness (+Def)")) {
+          state.knownEnchantments.push("Swiftness (+Def)");
         }
 
         updateUI();
-      }, 1000);
+      }
     }
 
-    function placeBid(amt) {
-      if (!activeAuction) return;
-      const nextBid = activeAuction.highBid + amt;
-      if (silver >= nextBid) {
-        silver -= (nextBid - (activeAuction.highBidder === "Player" ? activeAuction.highBid : 0));
-        activeAuction.highBid = nextBid;
-        activeAuction.highBidder = "Player";
-        logMessage(`Placed bid of ${nextBid.toLocaleString()} Silver!`);
+    function buySoulFlask() {
+      if (state.silver >= 25000 && state.castleLvl >= 10) {
+        state.silver -= 25000;
+        state.hasSoulFlask = true;
         updateUI();
       }
     }
 
-    function bidMaterials() {
-      if (!activeAuction) return;
-      if (wood >= 1250 && stone >= 1250) {
-        wood -= 1250; stone -= 1250;
-        activeAuction.highBid += 31250;
-        activeAuction.highBidder = "Player (Material Shipment)";
-        logMessage("Dispatched 1,250 Wood & Stone material shipment to boost bid!");
-        updateUI();
-      }
-    }
+    function fightMonster() {
+      let silverGained = Math.floor(Math.random() * 50) + 20;
+      state.silver += silverGained;
+      let log = `Victory! Earned ${silverGained} Silver.`;
 
-    function endAuction() {
-      clearInterval(auctionInterval);
-      if (activeAuction.highBidder.includes("Player")) {
-        landCharters++;
-        logMessage(`🏆 AUCTION WON! Acquired Land Charter for '${activeAuction.title}'!`);
-      } else {
-        logMessage(`❌ Auction ended. ${activeAuction.highBidder} won the grant.`);
+      // Harvest Souls if Soul Flask is owned
+      if (state.hasSoulFlask) {
+        let soulsHarvested = Math.floor(Math.random() * 5) + 1;
+        state.souls += soulsHarvested;
+        log += ` Harvested ${soulsHarvested} Souls!`;
       }
 
-      activeAuction = null;
+      // Exploration Loot Drop Chance
+      if (Math.random() < 0.25) {
+        state.rareLoot++;
+        log += ` Found 1x Rare Enchanted Gear drop!`;
+      }
+
+      document.getElementById('combatLog').innerText = log;
       updateUI();
-
-      setTimeout(() => {
-        if (castleLvl >= 20) triggerAuction();
-      }, 15000);
     }
 
-    function renderAuctionUI() {
-      if (!activeAuction) {
-        document.getElementById('auction-title').innerText = "Awaiting Next Imperial Auction...";
-        document.getElementById('auction-time').innerText = "0s";
-        document.getElementById('auction-high-bid').innerText = "0";
-        document.getElementById('auction-high-bidder').innerText = "None";
-        return;
-      }
+    function disenchantLoot() {
+      if (state.rareLoot >= 1) {
+        state.rareLoot--;
+        let exoticPool = ["Vampiric Touch (Life Steal)", "Fire Aspect (+Damage)", "Crown Levy Reduction"];
+        let discovered = exoticPool[Math.floor(Math.random() * exoticPool.length)];
 
-      document.getElementById('auction-title').innerText = activeAuction.title;
-      document.getElementById('auction-time').innerText = activeAuction.timeLeft + "s";
-      document.getElementById('auction-high-bid').innerText = activeAuction.highBid.toLocaleString() + " Silver";
-      document.getElementById('auction-high-bidder').innerText = activeAuction.highBidder;
-    }
-
-    // Active Spell Countdown Loop (Runs every 1 second)
-    setInterval(() => {
-      let needsUpdate = false;
-      for (let spell in spellTimers) {
-        if (spellTimers[spell] > 0) {
-          spellTimers[spell]--;
-          needsUpdate = true;
-          if (spellTimers[spell] === 0) {
-            logMessage(`✨ Arcane buff for ${spell} has expired.`);
-          }
+        if (!state.knownEnchantments.includes(discovered)) {
+          state.knownEnchantments.push(discovered);
+          alert(`Disenchanted loot and learned: ${discovered}!`);
+        } else {
+          alert(`Disenchanted loot for essence! (Already knew ${discovered})`);
         }
+        updateUI();
       }
-      if (needsUpdate) updateUI();
-    }, 1000);
+    }
 
-    // Main Game Tick Loop (Runs every 3 seconds)
-    setInterval(() => {
-      // Production Multipliers from Spells
-      const woodMult = spellTimers.wood > 0 ? 2 : 1;
-      const stoneMult = spellTimers.stone > 0 ? 2 : 1;
-      const silverMult = spellTimers.silver > 0 ? 3 : 1;
+    function craftCustomEnchantedGear() {
+      let selectedEnch = document.getElementById('enchSelect').value;
+      let soulsToSpend = parseInt(document.getElementById('soulSlider').value);
 
-      // Passive Resource Generation
-      if (forestLvl > 0) wood += (forestLvl * 15) * woodMult;
-      if (quarryLvl > 0) stone += (quarryLvl * 10) * stoneMult;
-      if (concreteLvl > 0) concrete += concreteLvl * 5;
-      if (silverMineLvl > 0) silver += (silverMineLvl * 25) * silverMult;
-      if (libraryLvl > 0) mana += libraryLvl * 10;
+      if (!selectedEnch) { alert("You must select a learned enchantment!"); return; }
+      if (state.souls < soulsToSpend) { alert("Not enough Souls!"); return; }
 
-      // Pay Council Salaries
-      council.forEach(c => {
-        if (silver >= c.salary) silver -= c.salary;
-      });
-
-      // Chance to spawn candidates & contracts
-      if (Math.random() < 0.2) generateCandidate();
-      if (Math.random() < 0.2) generateContract();
-
+      state.souls -= soulsToSpend;
+      state.enchantedItems++;
+      state.lastGearPower = soulsToSpend * 50; // Higher soul investment increases item sell/power scaling
+      document.getElementById('gearValue').innerText = state.lastGearPower;
       updateUI();
-    }, 3000);
+    }
+
+    function sellEnchantedItem() {
+      if (state.enchantedItems >= 1) {
+        state.enchantedItems--;
+        state.silver += state.lastGearPower > 0 ? state.lastGearPower : 5000;
+        updateUI();
+      }
+    }
 
     updateUI();
-    logMessage("Mobile Game Engine initialized.");
   </script>
 </body>
 </html>
