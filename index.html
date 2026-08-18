@@ -14,7 +14,6 @@
       --border: #2e3548;
       --green: #41b883;
       --purple: #9b51e0;
-      --red: #e74c3c;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -32,7 +31,6 @@
     button:disabled { background: var(--muted); opacity: 0.5; cursor: not-allowed; }
     .buff-tag { display: inline-block; background: var(--purple); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin: 2px; }
     .badge { background: var(--border); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
-    select, input[type="range"] { margin-top: 6px; padding: 6px; background: #191c28; color: var(--text); border: 1px solid var(--border); border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -44,75 +42,67 @@
     <div class="res-item">Silver: <span id="silver">0</span></div>
     <div class="res-item">Wood: <span id="wood">0</span></div>
     <div class="res-item">Stone: <span id="stone">0</span></div>
-    <div class="res-item">Souls: <span id="souls">0</span></div>
+    <div class="res-item">Mana: <span id="mana">0</span></div>
     <div class="res-item">Party Str: <span id="partyStr">10</span></div>
     <div class="res-item">Party Def: <span id="partyDef">10</span></div>
   </div>
 
+  <!-- Active Buffs Tracker -->
   <div id="buffContainer" style="margin-bottom: 16px;"></div>
 
   <div class="grid">
-    <!-- Castle & Soul Flask -->
+    <!-- Forest & Foraging -->
     <div class="card">
-      <h2>Castle <span class="badge" id="castleLvl">Lvl 1</span></h2>
-      <p>Upgrade Castle to unlock advanced systems and higher-tier base enchantments.</p>
-      <button onclick="upgradeCastle()">Upgrade Castle (<span id="castleCost">1000</span> Silver)</button>
+      <h2>Forest <span class="badge" id="forestLvl">Lvl 1</span></h2>
+      <p>Gather Wood and forage for rare ingredients once upgraded to Lvl 3+.</p>
+      <button onclick="gatherWood()">Gather Wood</button>
+      <button onclick="upgradeForest()">Upgrade Forest (<span id="forestCost">50</span> Silver)</button>
       <hr style="border-color: var(--border); margin: 12px 0;">
-      <h3>Soul Flask Status</h3>
-      <p id="flaskStatus">Locked (Requires Castle Lvl 10)</p>
-      <button id="buyFlaskBtn" onclick="buySoulFlask()" disabled>Buy Soul Flask (25,000 Silver)</button>
-    </div>
-
-    <!-- Expedition Combat & Soul Harvesting -->
-    <div class="card">
-      <h2>Combat & Expeditions</h2>
-      <p>Slay monsters to gain Silver and rare loot drops. Requires Soul Flask to harvest Souls.</p>
-      <button onclick="fightMonster()">Fight Monster</button>
-      <div style="margin-top: 10px; font-size: 0.85rem; color: var(--muted);" id="combatLog">
-        Ready for combat...
+      <h3>Foraging</h3>
+      <button id="forageBtn" onclick="forage()" disabled>Forage (Req. Forest Lvl 3)</button>
+      <div style="margin-top: 8px; font-size: 0.85rem;">
+        Herbs: <span id="herbs">0</span> | Roots: <span id="roots">0</span> | Runes: <span id="runes">0</span>
       </div>
     </div>
 
-    <!-- Disenchanting & Soul Forge -->
+    <!-- Alchemy Shop & Brewing -->
     <div class="card">
-      <h2>Soul Forge & Disenchanting</h2>
-      <p>Destroy rare loot to learn exotic enchantments, or spend harvested Souls to apply learned effects to equipment.</p>
-      
-      <div style="margin-bottom: 12px;">
-        <strong>Rare Loot Gear:</strong> <span id="rareLootCount">0</span><br>
-        <button onclick="disenchantLoot()">Disenchant Loot (Learn Exotic Recipe)</button>
-      </div>
-
+      <h2>Alchemy Shop</h2>
+      <p>Alembics Owned: <span id="alembics">0</span></p>
+      <button onclick="buyAlembic()">Buy Alembic (5,000 Silver)</button>
       <hr style="border-color: var(--border); margin: 12px 0;">
+      <h3>Brew Potions</h3>
+      <button onclick="brew('naturesGift')">Nature's Gift (2 Herbs) - +25% Wood</button><br>
+      <button onclick="brew('quarryBounty')">Quarry's Bounty (2 Roots) - +25% Stone</button><br>
+      <button onclick="brew('strengthPotion')">Strength Potion (1 Herb, 1 Root) - +10 Str</button><br>
+      <button onclick="brew('shieldPotion')">Shield Potion (2 Roots) - +10 Def</button><br>
+      <button onclick="brew('foragerSolvent')">Forager's Solvent (3 Herbs) - Rare Drop Boost</button><br>
+      <button onclick="brew('enchantersPotion')">Enchanter's Potion (1 Rune, 1 Herb) - +1 Enchanting</button>
+    </div>
 
-      <h3>Craft Custom Enchantment</h3>
-      <label for="enchSelect">Select Effect:</label><br>
-      <select id="enchSelect">
-        <option value="">-- No Enchantments Learned --</option>
-      </select><br>
-
-      <label for="soulSlider">Soul Investment: <span id="soulVal">10</span></label><br>
-      <input type="range" id="soulSlider" min="10" max="500" value="10" oninput="document.getElementById('soulVal').innerText = this.value"><br>
-
-      <button onclick="craftCustomEnchantedGear()">Enchant Equipment</button>
-      <button onclick="sellEnchantedItem()">Sell Gear (+<span id="gearValue">0</span> Silver)</button>
-
+    <!-- Enchanting Forge -->
+    <div class="card">
+      <h2>Enchanting Forge</h2>
+      <p>Enchanting Level: <span id="enchantLvl">1</span></p>
+      <p>Apply ancient runes to equipment to increase expedition combat power or sell for massive Silver payouts.</p>
+      <button onclick="enchantItem('weapon')">Enchant Weapon (1 Rune + 1,000 Silver)</button><br>
+      <button onclick="sellEnchantedItem()">Sell Enchanted Item (+12,000 Silver)</button>
       <div style="margin-top: 8px;">
-        Enchanted Inventory: <span id="enchantedItems">0</span>
+        Enchanted Items Inventory: <span id="enchantedItems">0</span>
       </div>
     </div>
   </div>
 
   <script>
+    // Game State
     let state = {
-      silver: 30000, wood: 0, stone: 0, souls: 0,
-      castleLvl: 1, castleCost: 1000,
-      hasSoulFlask: false,
+      silver: 10000, wood: 0, stone: 0, mana: 50,
+      forestLvl: 1, forestCost: 50,
+      herbs: 0, roots: 0, runes: 0,
+      alembics: 0,
       partyStr: 10, partyDef: 10,
-      rareLoot: 0,
-      enchantedItems: 0,
-      lastGearPower: 0,
-      knownEnchantments: [],
+      enchantLvl: 1, enchantedItems: 0,
+      multipliers: { wood: 1.0, stone: 1.0, forageRare: 1.0 },
       activeBuffs: {}
     };
 
@@ -120,123 +110,123 @@
       document.getElementById('silver').innerText = Math.floor(state.silver);
       document.getElementById('wood').innerText = Math.floor(state.wood);
       document.getElementById('stone').innerText = Math.floor(state.stone);
-      document.getElementById('souls').innerText = Math.floor(state.souls);
-      document.getElementById('castleLvl').innerText = 'Lvl ' + state.castleLvl;
-      document.getElementById('castleCost').innerText = state.castleCost;
-      document.getElementById('partyStr').innerText = state.partyStr;
-      document.getElementById('partyDef').innerText = state.partyDef;
-      document.getElementById('rareLootCount').innerText = state.rareLoot;
+      document.getElementById('mana').innerText = Math.floor(state.mana);
+      document.getElementById('forestLvl').innerText = 'Lvl ' + state.forestLvl;
+      document.getElementById('forestCost').innerText = state.forestCost;
+      document.getElementById('herbs').innerText = state.herbs;
+      document.getElementById('roots').innerText = state.roots;
+      document.getElementById('runes').innerText = state.runes;
+      document.getElementById('alembics').innerText = state.alembics;
+      document.getElementById('partyStr').innerText = state.partyStr + (state.activeBuffs.str ? 10 : 0);
+      document.getElementById('partyDef').innerText = state.partyDef + (state.activeBuffs.def ? 10 : 0);
+      document.getElementById('enchantLvl').innerText = state.enchantLvl + (state.activeBuffs.enchant ? 1 : 0);
       document.getElementById('enchantedItems').innerText = state.enchantedItems;
 
-      // Flask UI
-      if (state.hasSoulFlask) {
-        document.getElementById('flaskStatus').innerText = "Active (Harvesting Souls)";
-        document.getElementById('buyFlaskBtn').disabled = true;
-      } else if (state.castleLvl >= 10) {
-        document.getElementById('flaskStatus').innerText = "Available for Purchase!";
-        document.getElementById('buyFlaskBtn').disabled = false;
-      } else {
-        document.getElementById('flaskStatus').innerText = "Locked (Requires Castle Lvl 10)";
-        document.getElementById('buyFlaskBtn').disabled = true;
-      }
+      document.getElementById('forageBtn').disabled = state.forestLvl < 3;
 
-      // Dropdown menu for learned enchantments
-      let select = document.getElementById('enchSelect');
-      select.innerHTML = '';
-      if (state.knownEnchantments.length === 0) {
-        select.innerHTML = '<option value="">-- No Enchantments Learned --</option>';
-      } else {
-        state.knownEnchantments.forEach(e => {
-          let opt = document.createElement('option');
-          opt.value = e;
-          opt.innerText = e;
-          select.appendChild(opt);
-        });
+      // Active Buffs Rendering
+      let buffHTML = '';
+      for (let b in state.activeBuffs) {
+        buffHTML += `<span class="buff-tag">${state.activeBuffs[b].name} (${state.activeBuffs[b].time}s)</span>`;
       }
+      document.getElementById('buffContainer').innerHTML = buffHTML;
     }
 
-    function upgradeCastle() {
-      if (state.silver >= state.castleCost) {
-        state.silver -= state.castleCost;
-        state.castleLvl++;
-        state.castleCost = Math.floor(state.castleCost * 1.7);
-
-        // Castle Progression Base Unlocks
-        if (state.castleLvl === 10 && !state.knownEnchantments.includes("Minor Sharpness (+Str)")) {
-          state.knownEnchantments.push("Minor Sharpness (+Str)");
-        }
-        if (state.castleLvl === 15 && !state.knownEnchantments.includes("Swiftness (+Def)")) {
-          state.knownEnchantments.push("Swiftness (+Def)");
-        }
-
-        updateUI();
-      }
-    }
-
-    function buySoulFlask() {
-      if (state.silver >= 25000 && state.castleLvl >= 10) {
-        state.silver -= 25000;
-        state.hasSoulFlask = true;
-        updateUI();
-      }
-    }
-
-    function fightMonster() {
-      let silverGained = Math.floor(Math.random() * 50) + 20;
-      state.silver += silverGained;
-      let log = `Victory! Earned ${silverGained} Silver.`;
-
-      // Harvest Souls if Soul Flask is owned
-      if (state.hasSoulFlask) {
-        let soulsHarvested = Math.floor(Math.random() * 5) + 1;
-        state.souls += soulsHarvested;
-        log += ` Harvested ${soulsHarvested} Souls!`;
-      }
-
-      // Exploration Loot Drop Chance
-      if (Math.random() < 0.25) {
-        state.rareLoot++;
-        log += ` Found 1x Rare Enchanted Gear drop!`;
-      }
-
-      document.getElementById('combatLog').innerText = log;
+    function gatherWood() {
+      state.wood += 1 * state.multipliers.wood;
       updateUI();
     }
 
-    function disenchantLoot() {
-      if (state.rareLoot >= 1) {
-        state.rareLoot--;
-        let exoticPool = ["Vampiric Touch (Life Steal)", "Fire Aspect (+Damage)", "Crown Levy Reduction"];
-        let discovered = exoticPool[Math.floor(Math.random() * exoticPool.length)];
-
-        if (!state.knownEnchantments.includes(discovered)) {
-          state.knownEnchantments.push(discovered);
-          alert(`Disenchanted loot and learned: ${discovered}!`);
-        } else {
-          alert(`Disenchanted loot for essence! (Already knew ${discovered})`);
-        }
+    function upgradeForest() {
+      if (state.silver >= state.forestCost) {
+        state.silver -= state.forestCost;
+        state.forestLvl++;
+        state.forestCost = Math.floor(state.forestCost * 1.8);
         updateUI();
       }
     }
 
-    function craftCustomEnchantedGear() {
-      let selectedEnch = document.getElementById('enchSelect').value;
-      let soulsToSpend = parseInt(document.getElementById('soulSlider').value);
-
-      if (!selectedEnch) { alert("You must select a learned enchantment!"); return; }
-      if (state.souls < soulsToSpend) { alert("Not enough Souls!"); return; }
-
-      state.souls -= soulsToSpend;
-      state.enchantedItems++;
-      state.lastGearPower = soulsToSpend * 50; // Higher soul investment increases item sell/power scaling
-      document.getElementById('gearValue').innerText = state.lastGearPower;
+    function forage() {
+      if (state.forestLvl < 3) return;
+      let roll = Math.random() * state.multipliers.forageRare;
+      if (roll > 0.7) { state.runes++; }
+      else if (roll > 0.35) { state.roots++; }
+      else { state.herbs++; }
       updateUI();
+    }
+
+    function buyAlembic() {
+      if (state.silver >= 5000) {
+        state.silver -= 5000;
+        state.alembics++;
+        updateUI();
+      }
+    }
+
+    function applyBuff(key, name, duration, effectOn, effectOff) {
+      if (state.activeBuffs[key]) clearInterval(state.activeBuffs[key].timer);
+      effectOn();
+      let timeLeft = duration;
+      state.activeBuffs[key] = {
+        name: name,
+        time: timeLeft,
+        timer: setInterval(() => {
+          timeLeft--;
+          state.activeBuffs[key].time = timeLeft;
+          if (timeLeft <= 0) {
+            clearInterval(state.activeBuffs[key].timer);
+            delete state.activeBuffs[key];
+            effectOff();
+          }
+          updateUI();
+        }, 1000)
+      };
+      updateUI();
+    }
+
+    function brew(potion) {
+      if (state.alembics < 1) { alert("You need at least 1 Alembic to brew potions!"); return; }
+
+      if (potion === 'naturesGift' && state.herbs >= 2) {
+        state.herbs -= 2;
+        applyBuff('woodBuff', "Nature's Gift (+25% Wood)", 100, 
+          () => state.multipliers.wood = 1.25, 
+          () => state.multipliers.wood = 1.0);
+      } else if (potion === 'quarryBounty' && state.roots >= 2) {
+        state.roots -= 2;
+        applyBuff('stoneBuff', "Quarry's Bounty (+25% Stone)", 100, 
+          () => state.multipliers.stone = 1.25, 
+          () => state.multipliers.stone = 1.0);
+      } else if (potion === 'strengthPotion' && state.herbs >= 1 && state.roots >= 1) {
+        state.herbs--; state.roots--;
+        applyBuff('strBuff', "Strength Potion (+10 Str)", 100, () => {}, () => {});
+      } else if (potion === 'shieldPotion' && state.roots >= 2) {
+        state.roots -= 2;
+        applyBuff('defBuff', "Shield Potion (+10 Def)", 100, () => {}, () => {});
+      } else if (potion === 'foragerSolvent' && state.herbs >= 3) {
+        state.herbs -= 3;
+        applyBuff('forageBuff', "Forager's Solvent (Higher Rare Drop)", 200, 
+          () => state.multipliers.forageRare = 1.5, 
+          () => state.multipliers.forageRare = 1.0);
+      } else if (potion === 'enchantersPotion' && state.runes >= 1 && state.herbs >= 1) {
+        state.runes--; state.herbs--;
+        applyBuff('enchantBuff', "Enchanter's Potion (+1 Enchanting)", 100, () => {}, () => {});
+      }
+    }
+
+    function enchantItem() {
+      if (state.runes >= 1 && state.silver >= 1000) {
+        state.runes--;
+        state.silver -= 1000;
+        state.enchantedItems++;
+        updateUI();
+      }
     }
 
     function sellEnchantedItem() {
       if (state.enchantedItems >= 1) {
         state.enchantedItems--;
-        state.silver += state.lastGearPower > 0 ? state.lastGearPower : 5000;
+        state.silver += 12000;
         updateUI();
       }
     }
