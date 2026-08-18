@@ -13,7 +13,6 @@
       --muted: #8a99ad;
       --border: #2e3548;
       --green: #41b883;
-      --purple: #9b51e0;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -25,212 +24,191 @@
     h1, h2, h3 { color: var(--accent); margin-top: 0; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-    .resource-bar { display: flex; flex-wrap: wrap; gap: 12px; background: #191c28; padding: 12px; border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--border); }
-    .res-item { font-weight: bold; font-size: 0.95rem; }
-    button { background: var(--accent); color: #000; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 6px; margin-right: 4px; }
+    .resource-bar { display: flex; flex-wrap: wrap; gap: 16px; background: #191c28; padding: 12px; border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--border); }
+    .res-item { font-weight: bold; font-size: 1rem; }
+    button { background: var(--accent); color: #000; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 8px; margin-right: 4px; }
     button:disabled { background: var(--muted); opacity: 0.5; cursor: not-allowed; }
-    .buff-tag { display: inline-block; background: var(--purple); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin: 2px; }
-    .badge { background: var(--border); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+    .badge { background: var(--border); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: var(--accent); }
+    .rate { font-size: 0.85rem; color: var(--green); margin-left: 4px; }
   </style>
 </head>
 <body>
 
   <h1>Fantasy Mogul</h1>
 
-  <!-- Resources Overview -->
+  <!-- Top Resource Bar -->
   <div class="resource-bar">
-    <div class="res-item">Silver: <span id="silver">0</span></div>
-    <div class="res-item">Wood: <span id="wood">0</span></div>
-    <div class="res-item">Stone: <span id="stone">0</span></div>
-    <div class="res-item">Mana: <span id="mana">0</span></div>
-    <div class="res-item">Party Str: <span id="partyStr">10</span></div>
-    <div class="res-item">Party Def: <span id="partyDef">10</span></div>
+    <div class="res-item">Silver: <span id="silver">100</span> <span class="rate" id="silverRate">(+1/s)</span></div>
+    <div class="res-item">Wood: <span id="wood">0</span> / <span id="woodCap">100</span> <span class="rate" id="woodRate">(+0/s)</span></div>
+    <div class="res-item">Stone: <span id="stone">0</span> / <span id="stoneCap">100</span> <span class="rate" id="stoneRate">(+0/s)</span></div>
   </div>
 
-  <!-- Active Buffs Tracker -->
-  <div id="buffContainer" style="margin-bottom: 16px;"></div>
-
   <div class="grid">
-    <!-- Forest & Foraging -->
+    <!-- Castle (Kingdom Heart & Storage) -->
     <div class="card">
-      <h2>Forest <span class="badge" id="forestLvl">Lvl 1</span></h2>
-      <p>Gather Wood and forage for rare ingredients once upgraded to Lvl 3+.</p>
-      <button onclick="gatherWood()">Gather Wood</button>
-      <button onclick="upgradeForest()">Upgrade Forest (<span id="forestCost">50</span> Silver)</button>
-      <hr style="border-color: var(--border); margin: 12px 0;">
-      <h3>Foraging</h3>
-      <button id="forageBtn" onclick="forage()" disabled>Forage (Req. Forest Lvl 3)</button>
-      <div style="margin-top: 8px; font-size: 0.85rem;">
-        Herbs: <span id="herbs">0</span> | Roots: <span id="roots">0</span> | Runes: <span id="runes">0</span>
-      </div>
+      <h2>Castle <span class="badge" id="castleLvl">Lvl 1</span></h2>
+      <p>The seat of your kingdom. Upgrading increases resource storage capacity and passive Crown Silver taxes.</p>
+      <button id="upgradeCastleBtn" onclick="upgradeCastle()">
+        Upgrade Castle (<span id="castleCostWood">50</span> Wood, <span id="castleCostStone">50</span> Stone)
+      </button>
     </div>
 
-    <!-- Alchemy Shop & Brewing -->
+    <!-- Forest (Wood Generator) -->
     <div class="card">
-      <h2>Alchemy Shop</h2>
-      <p>Alembics Owned: <span id="alembics">0</span></p>
-      <button onclick="buyAlembic()">Buy Alembic (5,000 Silver)</button>
-      <hr style="border-color: var(--border); margin: 12px 0;">
-      <h3>Brew Potions</h3>
-      <button onclick="brew('naturesGift')">Nature's Gift (2 Herbs) - +25% Wood</button><br>
-      <button onclick="brew('quarryBounty')">Quarry's Bounty (2 Roots) - +25% Stone</button><br>
-      <button onclick="brew('strengthPotion')">Strength Potion (1 Herb, 1 Root) - +10 Str</button><br>
-      <button onclick="brew('shieldPotion')">Shield Potion (2 Roots) - +10 Def</button><br>
-      <button onclick="brew('foragerSolvent')">Forager's Solvent (3 Herbs) - Rare Drop Boost</button><br>
-      <button onclick="brew('enchantersPotion')">Enchanter's Potion (1 Rune, 1 Herb) - +1 Enchanting</button>
+      <h2>Forest <span class="badge" id="forestLvl">Lvl 0</span></h2>
+      <p>Generates Wood over time for construction and upgrades.</p>
+      <button onclick="gatherWoodManual()">Gather Wood (+1)</button>
+      <button id="upgradeForestBtn" onclick="upgradeForest()">
+        <span id="forestAction">Build Forest</span> (<span id="forestCostSilver">30</span> Silver)
+      </button>
     </div>
 
-    <!-- Enchanting Forge -->
+    <!-- Quarry (Stone Generator) -->
     <div class="card">
-      <h2>Enchanting Forge</h2>
-      <p>Enchanting Level: <span id="enchantLvl">1</span></p>
-      <p>Apply ancient runes to equipment to increase expedition combat power or sell for massive Silver payouts.</p>
-      <button onclick="enchantItem('weapon')">Enchant Weapon (1 Rune + 1,000 Silver)</button><br>
-      <button onclick="sellEnchantedItem()">Sell Enchanted Item (+12,000 Silver)</button>
-      <div style="margin-top: 8px;">
-        Enchanted Items Inventory: <span id="enchantedItems">0</span>
-      </div>
+      <h2>Quarry <span class="badge" id="quarryLvl">Lvl 0</span></h2>
+      <p>Generates Stone over time for heavy structural enhancements.</p>
+      <button onclick="gatherStoneManual()">Gather Stone (+1)</button>
+      <button id="upgradeQuarryBtn" onclick="upgradeQuarry()">
+        <span id="quarryAction">Build Quarry</span> (<span id="quarryCostSilver">50</span> Silver, <span id="quarryCostWood">20</span> Wood)
+      </button>
     </div>
   </div>
 
   <script>
-    // Game State
+    // Initial Game State
     let state = {
-      silver: 10000, wood: 0, stone: 0, mana: 50,
-      forestLvl: 1, forestCost: 50,
-      herbs: 0, roots: 0, runes: 0,
-      alembics: 0,
-      partyStr: 10, partyDef: 10,
-      enchantLvl: 1, enchantedItems: 0,
-      multipliers: { wood: 1.0, stone: 1.0, forageRare: 1.0 },
-      activeBuffs: {}
+      silver: 100,
+      wood: 0,
+      stone: 0,
+      castleLvl: 1,
+      forestLvl: 0,
+      quarryLvl: 0,
+      woodCap: 100,
+      stoneCap: 100
     };
 
+    function getCastleCost() {
+      return {
+        wood: Math.floor(50 * Math.pow(1.6, state.castleLvl - 1)),
+        stone: Math.floor(50 * Math.pow(1.6, state.castleLvl - 1))
+      };
+    }
+
+    function getForestCost() {
+      return Math.floor(30 * Math.pow(1.5, state.forestLvl));
+    }
+
+    function getQuarryCost() {
+      return {
+        silver: Math.floor(50 * Math.pow(1.5, state.quarryLvl)),
+        wood: Math.floor(20 * Math.pow(1.5, state.quarryLvl))
+      };
+    }
+
     function updateUI() {
+      // Resource Counts
       document.getElementById('silver').innerText = Math.floor(state.silver);
       document.getElementById('wood').innerText = Math.floor(state.wood);
       document.getElementById('stone').innerText = Math.floor(state.stone);
-      document.getElementById('mana').innerText = Math.floor(state.mana);
+
+      // Capacities
+      state.woodCap = state.castleLvl * 100;
+      state.stoneCap = state.castleLvl * 100;
+      document.getElementById('woodCap').innerText = state.woodCap;
+      document.getElementById('stoneCap').innerText = state.stoneCap;
+
+      // Rates
+      document.getElementById('silverRate').innerText = `(+${state.castleLvl}/s)`;
+      document.getElementById('woodRate').innerText = `(+${state.forestLvl}/s)`;
+      document.getElementById('stoneRate').innerText = `(+${state.quarryLvl}/s)`;
+
+      // Castle UI
+      document.getElementById('castleLvl').innerText = 'Lvl ' + state.castleLvl;
+      let castleCost = getCastleCost();
+      document.getElementById('castleCostWood').innerText = castleCost.wood;
+      document.getElementById('castleCostStone').innerText = castleCost.stone;
+      document.getElementById('upgradeCastleBtn').disabled = state.wood < castleCost.wood || state.stone < castleCost.stone;
+
+      // Forest UI
       document.getElementById('forestLvl').innerText = 'Lvl ' + state.forestLvl;
-      document.getElementById('forestCost').innerText = state.forestCost;
-      document.getElementById('herbs').innerText = state.herbs;
-      document.getElementById('roots').innerText = state.roots;
-      document.getElementById('runes').innerText = state.runes;
-      document.getElementById('alembics').innerText = state.alembics;
-      document.getElementById('partyStr').innerText = state.partyStr + (state.activeBuffs.str ? 10 : 0);
-      document.getElementById('partyDef').innerText = state.partyDef + (state.activeBuffs.def ? 10 : 0);
-      document.getElementById('enchantLvl').innerText = state.enchantLvl + (state.activeBuffs.enchant ? 1 : 0);
-      document.getElementById('enchantedItems').innerText = state.enchantedItems;
+      document.getElementById('forestAction').innerText = state.forestLvl === 0 ? "Build Forest" : "Upgrade Forest";
+      let forestCost = getForestCost();
+      document.getElementById('forestCostSilver').innerText = forestCost;
+      document.getElementById('upgradeForestBtn').disabled = state.silver < forestCost;
 
-      document.getElementById('forageBtn').disabled = state.forestLvl < 3;
-
-      // Active Buffs Rendering
-      let buffHTML = '';
-      for (let b in state.activeBuffs) {
-        buffHTML += `<span class="buff-tag">${state.activeBuffs[b].name} (${state.activeBuffs[b].time}s)</span>`;
-      }
-      document.getElementById('buffContainer').innerHTML = buffHTML;
+      // Quarry UI
+      document.getElementById('quarryLvl').innerText = 'Lvl ' + state.quarryLvl;
+      document.getElementById('quarryAction').innerText = state.quarryLvl === 0 ? "Build Quarry" : "Upgrade Quarry";
+      let quarryCost = getQuarryCost();
+      document.getElementById('quarryCostSilver').innerText = quarryCost.silver;
+      document.getElementById('quarryCostWood').innerText = quarryCost.wood;
+      document.getElementById('upgradeQuarryBtn').disabled = state.silver < quarryCost.silver || state.wood < quarryCost.wood;
     }
 
-    function gatherWood() {
-      state.wood += 1 * state.multipliers.wood;
-      updateUI();
+    // Manual Gathering
+    function gatherWoodManual() {
+      if (state.wood < state.woodCap) {
+        state.wood = Math.min(state.woodCap, state.wood + 1);
+        updateUI();
+      }
+    }
+
+    function gatherStoneManual() {
+      if (state.stone < state.stoneCap) {
+        state.stone = Math.min(state.stoneCap, state.stone + 1);
+        updateUI();
+      }
+    }
+
+    // Building Actions
+    function upgradeCastle() {
+      let cost = getCastleCost();
+      if (state.wood >= cost.wood && state.stone >= cost.stone) {
+        state.wood -= cost.wood;
+        state.stone -= cost.stone;
+        state.castleLvl++;
+        updateUI();
+      }
     }
 
     function upgradeForest() {
-      if (state.silver >= state.forestCost) {
-        state.silver -= state.forestCost;
+      let cost = getForestCost();
+      if (state.silver >= cost) {
+        state.silver -= cost;
         state.forestLvl++;
-        state.forestCost = Math.floor(state.forestCost * 1.8);
         updateUI();
       }
     }
 
-    function forage() {
-      if (state.forestLvl < 3) return;
-      let roll = Math.random() * state.multipliers.forageRare;
-      if (roll > 0.7) { state.runes++; }
-      else if (roll > 0.35) { state.roots++; }
-      else { state.herbs++; }
+    function upgradeQuarry() {
+      let cost = getQuarryCost();
+      if (state.silver >= cost.silver && state.wood >= cost.wood) {
+        state.silver -= cost.silver;
+        state.wood -= cost.wood;
+        state.quarryLvl++;
+        updateUI();
+      }
+    }
+
+    // Game Loop (Passive Income every 1 second)
+    setInterval(() => {
+      // Passive Silver Tax from Castle
+      state.silver += state.castleLvl;
+
+      // Passive Wood from Forest
+      if (state.forestLvl > 0 && state.wood < state.woodCap) {
+        state.wood = Math.min(state.woodCap, state.wood + state.forestLvl);
+      }
+
+      // Passive Stone from Quarry
+      if (state.quarryLvl > 0 && state.stone < state.stoneCap) {
+        state.stone = Math.min(state.stoneCap, state.stone + state.quarryLvl);
+      }
+
       updateUI();
-    }
+    }, 1000);
 
-    function buyAlembic() {
-      if (state.silver >= 5000) {
-        state.silver -= 5000;
-        state.alembics++;
-        updateUI();
-      }
-    }
-
-    function applyBuff(key, name, duration, effectOn, effectOff) {
-      if (state.activeBuffs[key]) clearInterval(state.activeBuffs[key].timer);
-      effectOn();
-      let timeLeft = duration;
-      state.activeBuffs[key] = {
-        name: name,
-        time: timeLeft,
-        timer: setInterval(() => {
-          timeLeft--;
-          state.activeBuffs[key].time = timeLeft;
-          if (timeLeft <= 0) {
-            clearInterval(state.activeBuffs[key].timer);
-            delete state.activeBuffs[key];
-            effectOff();
-          }
-          updateUI();
-        }, 1000)
-      };
-      updateUI();
-    }
-
-    function brew(potion) {
-      if (state.alembics < 1) { alert("You need at least 1 Alembic to brew potions!"); return; }
-
-      if (potion === 'naturesGift' && state.herbs >= 2) {
-        state.herbs -= 2;
-        applyBuff('woodBuff', "Nature's Gift (+25% Wood)", 100, 
-          () => state.multipliers.wood = 1.25, 
-          () => state.multipliers.wood = 1.0);
-      } else if (potion === 'quarryBounty' && state.roots >= 2) {
-        state.roots -= 2;
-        applyBuff('stoneBuff', "Quarry's Bounty (+25% Stone)", 100, 
-          () => state.multipliers.stone = 1.25, 
-          () => state.multipliers.stone = 1.0);
-      } else if (potion === 'strengthPotion' && state.herbs >= 1 && state.roots >= 1) {
-        state.herbs--; state.roots--;
-        applyBuff('strBuff', "Strength Potion (+10 Str)", 100, () => {}, () => {});
-      } else if (potion === 'shieldPotion' && state.roots >= 2) {
-        state.roots -= 2;
-        applyBuff('defBuff', "Shield Potion (+10 Def)", 100, () => {}, () => {});
-      } else if (potion === 'foragerSolvent' && state.herbs >= 3) {
-        state.herbs -= 3;
-        applyBuff('forageBuff', "Forager's Solvent (Higher Rare Drop)", 200, 
-          () => state.multipliers.forageRare = 1.5, 
-          () => state.multipliers.forageRare = 1.0);
-      } else if (potion === 'enchantersPotion' && state.runes >= 1 && state.herbs >= 1) {
-        state.runes--; state.herbs--;
-        applyBuff('enchantBuff', "Enchanter's Potion (+1 Enchanting)", 100, () => {}, () => {});
-      }
-    }
-
-    function enchantItem() {
-      if (state.runes >= 1 && state.silver >= 1000) {
-        state.runes--;
-        state.silver -= 1000;
-        state.enchantedItems++;
-        updateUI();
-      }
-    }
-
-    function sellEnchantedItem() {
-      if (state.enchantedItems >= 1) {
-        state.enchantedItems--;
-        state.silver += 12000;
-        updateUI();
-      }
-    }
-
+    // Initial render
     updateUI();
   </script>
 </body>
