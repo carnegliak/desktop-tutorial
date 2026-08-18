@@ -14,6 +14,8 @@
       --border: #2e3548;
       --green: #41b883;
       --red: #e74c3c;
+      --slot-empty: #2a3042;
+      --slot-locked: #181b24;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -32,6 +34,39 @@
     .badge { background: var(--border); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: var(--accent); }
     .rate { font-size: 0.85rem; color: var(--green); margin-left: 4px; }
     .tax { font-size: 0.85rem; color: var(--red); margin-left: 4px; }
+
+    /* Visual Parcel Grid */
+    .parcel-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .parcel {
+      aspect-ratio: 1;
+      border: 2px dashed var(--border);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+      text-align: center;
+      padding: 4px;
+    }
+    .parcel.active {
+      border-style: solid;
+      border-color: var(--accent);
+      background: rgba(226, 176, 65, 0.08);
+      color: var(--text);
+    }
+    .parcel.locked {
+      background: var(--slot-locked);
+      border-color: #1f2433;
+      color: var(--muted);
+      opacity: 0.5;
+    }
   </style>
 </head>
 <body>
@@ -43,7 +78,7 @@
     <div class="res-item">Silver: <span id="silver">100</span> <span class="rate" id="silverRate">(+1/s)</span></div>
     <div class="res-item">Wood: <span id="wood">0</span> / <span id="woodCap">100</span> <span class="rate" id="woodRate">(+0/s)</span></div>
     <div class="res-item">Stone: <span id="stone">0</span> / <span id="stoneCap">100</span> <span class="rate" id="stoneRate">(+0/s)</span></div>
-    <div class="res-item">Land Plots: <span id="plotsOwned">2</span> / <span id="maxPlots">2</span></div>
+    <div class="res-item">Land Parcels: <span id="plotsOwned">2</span> / <span id="maxPlots">2</span></div>
   </div>
 
   <div class="grid">
@@ -56,14 +91,18 @@
       </button>
     </div>
 
-    <!-- Land Expansion & Crown Levy (Unlocked at Castle Lv 5) -->
+    <!-- Visual Land Expansion Grid -->
     <div class="card">
-      <h2>Land Expansion</h2>
+      <h2>Territory Map</h2>
       <p id="landStatus">Locked (Requires Castle Lvl 5)</p>
       <p>Crown Levy Tax Rate: <span class="tax" id="levyRate">0.00%</span></p>
       <button id="buyPlotBtn" onclick="buyPlotSlot()" disabled>
         Buy Plot Slot (<span id="plotCost">5,000</span> Silver)
       </button>
+
+      <div class="parcel-grid" id="parcelGrid">
+        <!-- Dynmically Rendered Land Parcels -->
+      </div>
     </div>
 
     <!-- Forest (Wood Generator) -->
@@ -85,6 +124,15 @@
         <span id="quarryAction">Build Quarry</span> (<span id="quarryCostSilver">50</span> Silver, <span id="quarryCostWood">20</span> Wood)
       </button>
     </div>
+
+    <!-- Expedition Guild (Unlocked at Castle Lvl 5) -->
+    <div class="card">
+      <h2>Expedition Guild <span class="badge" id="guildLvl">Lvl 0</span></h2>
+      <p id="guildStatus">Requires Castle Lvl 5 &amp; 1 Free Land Parcel</p>
+      <button id="buildGuildBtn" onclick="buildGuild()" disabled>
+        Build Guild (1,000 Silver, 200 Wood, 200 Stone)
+      </button>
+    </div>
   </div>
 
   <script>
@@ -96,6 +144,7 @@
       castleLvl: 1,
       forestLvl: 0,
       quarryLvl: 0,
+      guildLvl: 0,
       woodCap: 100,
       stoneCap: 100,
       plotsOwned: 2,       // Base plots for Forest + Quarry
@@ -126,9 +175,32 @@
 
     function getNetSilverRate() {
       let baseIncome = state.castleLvl;
-      let levyPercent = state.extraPlotsBought * 0.0006; // 0.06% per plot
+      let levyPercent = state.extraPlotsBought * 0.0006;
       let netRate = baseIncome * (1 - levyPercent);
       return Math.max(0.1, netRate).toFixed(2);
+    }
+
+    function renderParcels() {
+      const grid = document.getElementById('parcelGrid');
+      grid.innerHTML = '';
+
+      let totalSlotsToShow = Math.max(8, state.plotsOwned + 2);
+      let occupied = [];
+      if (state.forestLvl > 0) occupied.push('🌲 Forest');
+      if (state.quarryLvl > 0) occupied.push('⛏️ Quarry');
+      if (state.guildLvl > 0) occupied.push('📜 Guild');
+
+      for (let i = 0; i < totalSlotsToShow; i++) {
+        const div = document.createElement('div');
+        if (i < state.plotsOwned) {
+          div.className = 'parcel active';
+          div.innerText = occupied[i] || '🟩 Empty';
+        } else {
+          div.className = 'parcel locked';
+          div.innerText = '🔒 Locked';
+        }
+        grid.appendChild(div);
+      }
     }
 
     function updateUI() {
@@ -138,7 +210,7 @@
       document.getElementById('stone').innerText = Math.floor(state.stone);
 
       // Plots Tracker
-      let totalPlotsUsed = (state.forestLvl > 0 ? 1 : 0) + (state.quarryLvl > 0 ? 1 : 0);
+      let totalPlotsUsed = (state.forestLvl > 0 ? 1 : 0) + (state.quarryLvl > 0 ? 1 : 0) + (state.guildLvl > 0 ? 1 : 0);
       document.getElementById('plotsOwned').innerText = totalPlotsUsed;
       document.getElementById('maxPlots').innerText = state.plotsOwned;
 
@@ -165,7 +237,7 @@
 
       // Land Expansion UI
       if (state.castleLvl >= 5) {
-        document.getElementById('landStatus').innerText = "Expand land grid to place future advanced structures.";
+        document.getElementById('landStatus').innerText = "Expand land grid for advanced structures.";
         let plotCost = getPlotCost();
         document.getElementById('plotCost').innerText = plotCost.toLocaleString();
         document.getElementById('buyPlotBtn').disabled = state.silver < plotCost;
@@ -179,8 +251,6 @@
       document.getElementById('forestAction').innerText = state.forestLvl === 0 ? "Build Forest" : "Upgrade Forest";
       let forestCost = getForestCost();
       document.getElementById('forestCostSilver').innerText = forestCost;
-      
-      // Plot availability check for building new structures
       let needsPlotForForest = state.forestLvl === 0 && totalPlotsUsed >= state.plotsOwned;
       document.getElementById('upgradeForestBtn').disabled = state.silver < forestCost || needsPlotForForest;
 
@@ -190,9 +260,27 @@
       let quarryCost = getQuarryCost();
       document.getElementById('quarryCostSilver').innerText = quarryCost.silver;
       document.getElementById('quarryCostWood').innerText = quarryCost.wood;
-      
       let needsPlotForQuarry = state.quarryLvl === 0 && totalPlotsUsed >= state.plotsOwned;
       document.getElementById('upgradeQuarryBtn').disabled = state.silver < quarryCost.silver || state.wood < quarryCost.wood || needsPlotForQuarry;
+
+      // Expedition Guild UI
+      document.getElementById('guildLvl').innerText = 'Lvl ' + state.guildLvl;
+      if (state.castleLvl >= 5) {
+        if (state.guildLvl === 0) {
+          document.getElementById('guildStatus').innerText = "Ready to build. Requires 1 open Land Parcel.";
+          let needsPlotForGuild = totalPlotsUsed >= state.plotsOwned;
+          document.getElementById('buildGuildBtn').disabled = state.silver < 1000 || state.wood < 200 || state.stone < 200 || needsPlotForGuild;
+        } else {
+          document.getElementById('guildStatus').innerText = "Guild Active! Ready to dispatch party.";
+          document.getElementById('buildGuildBtn').disabled = true;
+          document.getElementById('buildGuildBtn').innerText = "Guild Active";
+        }
+      } else {
+        document.getElementById('guildStatus').innerText = "Requires Castle Lvl 5 & 1 Free Land Parcel";
+        document.getElementById('buildGuildBtn').disabled = true;
+      }
+
+      renderParcels();
     }
 
     // Manual Gathering
@@ -250,19 +338,27 @@
       }
     }
 
+    function buildGuild() {
+      let totalPlotsUsed = (state.forestLvl > 0 ? 1 : 0) + (state.quarryLvl > 0 ? 1 : 0) + (state.guildLvl > 0 ? 1 : 0);
+      if (state.castleLvl >= 5 && state.silver >= 1000 && state.wood >= 200 && state.stone >= 200 && totalPlotsUsed < state.plotsOwned) {
+        state.silver -= 1000;
+        state.wood -= 200;
+        state.stone -= 200;
+        state.guildLvl = 1;
+        updateUI();
+      }
+    }
+
     // Game Loop (Passive Income every 1 second)
     setInterval(() => {
-      // Passive Silver Tax from Castle minus Crown Levy
       let baseIncome = state.castleLvl;
       let levyPercent = state.extraPlotsBought * 0.0006;
       state.silver += Math.max(0.1, baseIncome * (1 - levyPercent));
 
-      // Passive Wood from Forest
       if (state.forestLvl > 0 && state.wood < state.woodCap) {
         state.wood = Math.min(state.woodCap, state.wood + state.forestLvl);
       }
 
-      // Passive Stone from Quarry
       if (state.quarryLvl > 0 && state.stone < state.stoneCap) {
         state.stone = Math.min(state.stoneCap, state.stone + state.quarryLvl);
       }
