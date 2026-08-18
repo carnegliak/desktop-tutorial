@@ -13,6 +13,7 @@
       --muted: #8a99ad;
       --border: #2e3548;
       --green: #41b883;
+      --red: #e74c3c;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -30,6 +31,7 @@
     button:disabled { background: var(--muted); opacity: 0.5; cursor: not-allowed; }
     .badge { background: var(--border); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: var(--accent); }
     .rate { font-size: 0.85rem; color: var(--green); margin-left: 4px; }
+    .tax { font-size: 0.85rem; color: var(--red); margin-left: 4px; }
   </style>
 </head>
 <body>
@@ -41,15 +43,26 @@
     <div class="res-item">Silver: <span id="silver">100</span> <span class="rate" id="silverRate">(+1/s)</span></div>
     <div class="res-item">Wood: <span id="wood">0</span> / <span id="woodCap">100</span> <span class="rate" id="woodRate">(+0/s)</span></div>
     <div class="res-item">Stone: <span id="stone">0</span> / <span id="stoneCap">100</span> <span class="rate" id="stoneRate">(+0/s)</span></div>
+    <div class="res-item">Land Plots: <span id="plotsOwned">2</span> / <span id="maxPlots">2</span></div>
   </div>
 
   <div class="grid">
     <!-- Castle (Kingdom Heart & Storage) -->
     <div class="card">
       <h2>Castle <span class="badge" id="castleLvl">Lvl 1</span></h2>
-      <p>The seat of your kingdom. Upgrading increases resource storage capacity and passive Crown Silver taxes.</p>
+      <p>The seat of your kingdom. Upgrading increases resource storage capacity and base Crown Silver taxes.</p>
       <button id="upgradeCastleBtn" onclick="upgradeCastle()">
         Upgrade Castle (<span id="castleCostWood">50</span> Wood, <span id="castleCostStone">50</span> Stone)
+      </button>
+    </div>
+
+    <!-- Land Expansion & Crown Levy (Unlocked at Castle Lv 5) -->
+    <div class="card">
+      <h2>Land Expansion</h2>
+      <p id="landStatus">Locked (Requires Castle Lvl 5)</p>
+      <p>Crown Levy Tax Rate: <span class="tax" id="levyRate">0.00%</span></p>
+      <button id="buyPlotBtn" onclick="buyPlotSlot()" disabled>
+        Buy Plot Slot (<span id="plotCost">5,000</span> Silver)
       </button>
     </div>
 
@@ -84,7 +97,9 @@
       forestLvl: 0,
       quarryLvl: 0,
       woodCap: 100,
-      stoneCap: 100
+      stoneCap: 100,
+      plotsOwned: 2,       // Base plots for Forest + Quarry
+      extraPlotsBought: 0
     };
 
     function getCastleCost() {
@@ -105,11 +120,27 @@
       };
     }
 
+    function getPlotCost() {
+      return Math.floor(5000 * Math.pow(2.2, state.extraPlotsBought));
+    }
+
+    function getNetSilverRate() {
+      let baseIncome = state.castleLvl;
+      let levyPercent = state.extraPlotsBought * 0.0006; // 0.06% per plot
+      let netRate = baseIncome * (1 - levyPercent);
+      return Math.max(0.1, netRate).toFixed(2);
+    }
+
     function updateUI() {
       // Resource Counts
       document.getElementById('silver').innerText = Math.floor(state.silver);
       document.getElementById('wood').innerText = Math.floor(state.wood);
       document.getElementById('stone').innerText = Math.floor(state.stone);
+
+      // Plots Tracker
+      let totalPlotsUsed = (state.forestLvl > 0 ? 1 : 0) + (state.quarryLvl > 0 ? 1 : 0);
+      document.getElementById('plotsOwned').innerText = totalPlotsUsed;
+      document.getElementById('maxPlots').innerText = state.plotsOwned;
 
       // Capacities
       state.woodCap = state.castleLvl * 100;
@@ -117,10 +148,13 @@
       document.getElementById('woodCap').innerText = state.woodCap;
       document.getElementById('stoneCap').innerText = state.stoneCap;
 
-      // Rates
-      document.getElementById('silverRate').innerText = `(+${state.castleLvl}/s)`;
+      // Rates & Taxes
+      document.getElementById('silverRate').innerText = `(+${getNetSilverRate()}/s)`;
       document.getElementById('woodRate').innerText = `(+${state.forestLvl}/s)`;
       document.getElementById('stoneRate').innerText = `(+${state.quarryLvl}/s)`;
+
+      let levyPct = (state.extraPlotsBought * 0.06).toFixed(2);
+      document.getElementById('levyRate').innerText = levyPct + '%';
 
       // Castle UI
       document.getElementById('castleLvl').innerText = 'Lvl ' + state.castleLvl;
@@ -129,12 +163,26 @@
       document.getElementById('castleCostStone').innerText = castleCost.stone;
       document.getElementById('upgradeCastleBtn').disabled = state.wood < castleCost.wood || state.stone < castleCost.stone;
 
+      // Land Expansion UI
+      if (state.castleLvl >= 5) {
+        document.getElementById('landStatus').innerText = "Expand land grid to place future advanced structures.";
+        let plotCost = getPlotCost();
+        document.getElementById('plotCost').innerText = plotCost.toLocaleString();
+        document.getElementById('buyPlotBtn').disabled = state.silver < plotCost;
+      } else {
+        document.getElementById('landStatus').innerText = "Locked (Requires Castle Lvl 5)";
+        document.getElementById('buyPlotBtn').disabled = true;
+      }
+
       // Forest UI
       document.getElementById('forestLvl').innerText = 'Lvl ' + state.forestLvl;
       document.getElementById('forestAction').innerText = state.forestLvl === 0 ? "Build Forest" : "Upgrade Forest";
       let forestCost = getForestCost();
       document.getElementById('forestCostSilver').innerText = forestCost;
-      document.getElementById('upgradeForestBtn').disabled = state.silver < forestCost;
+      
+      // Plot availability check for building new structures
+      let needsPlotForForest = state.forestLvl === 0 && totalPlotsUsed >= state.plotsOwned;
+      document.getElementById('upgradeForestBtn').disabled = state.silver < forestCost || needsPlotForForest;
 
       // Quarry UI
       document.getElementById('quarryLvl').innerText = 'Lvl ' + state.quarryLvl;
@@ -142,7 +190,9 @@
       let quarryCost = getQuarryCost();
       document.getElementById('quarryCostSilver').innerText = quarryCost.silver;
       document.getElementById('quarryCostWood').innerText = quarryCost.wood;
-      document.getElementById('upgradeQuarryBtn').disabled = state.silver < quarryCost.silver || state.wood < quarryCost.wood;
+      
+      let needsPlotForQuarry = state.quarryLvl === 0 && totalPlotsUsed >= state.plotsOwned;
+      document.getElementById('upgradeQuarryBtn').disabled = state.silver < quarryCost.silver || state.wood < quarryCost.wood || needsPlotForQuarry;
     }
 
     // Manual Gathering
@@ -171,6 +221,16 @@
       }
     }
 
+    function buyPlotSlot() {
+      let cost = getPlotCost();
+      if (state.castleLvl >= 5 && state.silver >= cost) {
+        state.silver -= cost;
+        state.plotsOwned++;
+        state.extraPlotsBought++;
+        updateUI();
+      }
+    }
+
     function upgradeForest() {
       let cost = getForestCost();
       if (state.silver >= cost) {
@@ -192,8 +252,10 @@
 
     // Game Loop (Passive Income every 1 second)
     setInterval(() => {
-      // Passive Silver Tax from Castle
-      state.silver += state.castleLvl;
+      // Passive Silver Tax from Castle minus Crown Levy
+      let baseIncome = state.castleLvl;
+      let levyPercent = state.extraPlotsBought * 0.0006;
+      state.silver += Math.max(0.1, baseIncome * (1 - levyPercent));
 
       // Passive Wood from Forest
       if (state.forestLvl > 0 && state.wood < state.woodCap) {
